@@ -1,0 +1,29 @@
+{
+    "name": "@greenacres/db",
+    "version": "0.1.0",
+    "private": true,
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "exports": {
+        ".": "./src/index.ts",
+        "./firebase": "./src/firebase.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint .",
+        "test": "vitest run",
+        "seed": "tsx src/scripts/seed-new-coffees.ts"
+    },
+    "dependencies": {
+        "@greenacres/types": "workspace:*",
+        "firebase": "^11.2.0",
+        "firebase-admin": "^13.0.2"
+    },
+    "devDependencies": {
+        "@greenacres/config": "workspace:*",
+        "@types/node": "^20.19.30",
+        "dotenv": "^17.2.3",
+        "tsx": "^4.21.0",
+        "typescript": "^5"
+    }
+}

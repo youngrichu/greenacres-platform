@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+/* Greenacres Coffee Theme */
+:root {
+    --background: 140 25% 98%;
+    --foreground: 140 30% 10%;
+    --primary: 140 35% 25%;
+    --primary-foreground: 45 80% 95%;
+    --muted: 140 15% 90%;
+    --muted-foreground: 140 20% 40%;
+    --accent: 45 85% 55%;
+    --accent-foreground: 140 35% 15%;
+    --border: 140 20% 85%;
+    --ring: 45 85% 55%;
+}
+
+.dark {
+    --background: 140 35% 8%;
+    --foreground: 45 30% 95%;
+    --primary: 45 85% 55%;
+    --primary-foreground: 140 35% 10%;
+    --muted: 140 25% 15%;
+    --muted-foreground: 140 15% 60%;
+    --accent: 45 85% 55%;
+    --accent-foreground: 140 35% 10%;
+    --border: 140 25% 20%;
+    --ring: 45 85% 55%;
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: hsl(140 35% 12%);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: hsl(45 85% 55%);
+    border-radius: 4px;
+}

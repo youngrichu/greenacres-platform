@@ -1,0 +1,174 @@
+---
+title: Technical Architecture
+description: Technical documentation covering the monorepo structure, packages, and deployment.
+---
+
+# Technical Architecture
+
+The Greenacres Coffee Platform is built as a modern TypeScript monorepo using TurboRepo and pnpm.
+
+## Monorepo Structure
+
+```
+coffee/
+├── apps/
+│   ├── web/          # Public site + Buyer Portal (Next.js)
+│   ├── admin/        # Admin Dashboard (Next.js)
+│   └── docs/         # Documentation (Fumadocs)
+├── packages/
+│   ├── ui/           # Shared UI components (Tailwind + Shadcn)
+│   ├── auth/         # Authentication logic (Firebase)
+│   ├── db/           # Database schemas and utilities
+│   ├── types/        # Shared TypeScript types
+│   └── config/       # Shared ESLint/TS configs
+└── turbo.json        # TurboRepo configuration
+```
+
+## Apps
+
+### Web (`apps/web`)
+
+The public-facing Next.js application containing:
+
+- **Marketing Pages**: Homepage, About, Contact
+- **Buyer Portal**: Catalog, Coffee Details, Inquiries, Profile
+
+**Port:** 3000
+
+### Admin (`apps/admin`)
+
+Internal administration dashboard:
+
+- **Dashboard**: Metrics and overview
+- **Products**: Coffee CRUD operations
+- **Inquiries**: Request management
+- **Users**: Role and access management
+
+**Port:** 3001
+
+## Packages
+
+### UI (`packages/ui`)
+
+Shared component library built with:
+
+- **Tailwind CSS**: Utility-first styling
+- **Shadcn/ui**: Accessible component primitives
+- **Lucide Icons**: Icon library
+
+Key components: Button, Card, Input, Modal, Table
+
+### Auth (`packages/auth`)
+
+Firebase Authentication wrapper providing:
+
+- `useAuth()` hook for client components
+- `signIn()`, `signUp()`, `signOut()` methods
+- Role-based access control
+- Session persistence
+
+### DB (`packages/db`)
+
+Firestore data access layer:
+
+- **Collections**: users, coffees, inquiries, locations
+- **Functions**: getCoffees, createInquiry, updateUserRole
+- **Email**: Mailtrap integration for transactional emails
+
+### Types (`packages/types`)
+
+Shared TypeScript interfaces:
+
+```typescript
+interface Coffee {
+  id: string;
+  name: string;
+  region: string;
+  grade: number;
+  price: number;
+  // ...
+}
+
+interface Inquiry {
+  id: string;
+  userId: string;
+  coffeeId: string;
+  status: 'pending' | 'reviewed' | 'quoted' | 'completed';
+  // ...
+}
+```
+
+## Database
+
+**Firebase Firestore** is used as the primary database.
+
+### Collections
+
+| Collection | Description |
+|------------|-------------|
+| `users` | User profiles and roles |
+| `coffees` | Coffee product catalog |
+| `inquiries` | Sample requests from buyers |
+| `locations` | Delivery location pricing |
+| `emailQueue` | Outbound email queue |
+
+### Security Rules
+
+Located in `firestore.rules`:
+
+- Users can only read/write their own data
+- Admins have full access
+- Public read access for coffee catalog
+
+## Deployment
+
+### Vercel
+
+The platform is designed for Vercel deployment:
+
+```bash
+# Deploy all apps
+vercel deploy
+
+# Deploy specific app
+vercel deploy --cwd apps/web
+```
+
+### Environment Variables
+
+Required environment variables (see `.env.production.example`):
+
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+FIREBASE_ADMIN_CLIENT_EMAIL=...
+FIREBASE_ADMIN_PRIVATE_KEY=...
+MAILTRAP_TOKEN=...
+```
+
+## Testing
+
+### Vitest
+
+Unit and integration tests using Vitest:
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests for specific package
+pnpm --filter @greenacres/db test
+```
+
+### Linting
+
+ESLint configuration shared via `packages/config`:
+
+```bash
+# Lint all packages
+pnpm lint
+
+# Type check
+pnpm typecheck
+```

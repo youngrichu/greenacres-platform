@@ -1,0 +1,124 @@
+---
+title: Admin Dashboard
+description: Guide for administrators to manage products, inquiries, and users.
+---
+
+# Admin Dashboard Guide
+
+The Admin Dashboard provides complete control over the Greenacres Coffee Platform.
+
+## Access
+
+**URL:** `http://localhost:3001`
+
+**Admin Credentials:**
+- Email: `majorrichu@gmail.com`
+- Password: `uQQLDu3cYUv2Tc7`
+
+<Callout type="warn">
+  Only users with the `admin` role can access this dashboard. Regular buyers will be denied access.
+</Callout>
+
+## Dashboard Overview
+
+The main dashboard displays key metrics:
+
+- **Total Users**: Registered buyers and admins
+- **Active Inquiries**: Pending sample requests
+- **Total Products**: Coffee offerings in the catalog
+- **Revenue Metrics**: Monthly and yearly summaries
+
+![Admin Dashboard Overview](/screenshots/admin-overview.png)
+
+### Admin Dashboard in Action
+
+<img src="/recordings/admin-dashboard-demo.webp" alt="Admin Dashboard Demo" style={{ width: '100%', borderRadius: '12px', marginBottom: '1rem' }} />
+
+## Product Management
+
+### Viewing Products
+
+Navigate to **Products** in the sidebar to see all coffee offerings in a sortable table:
+
+| Column | Description |
+|--------|-------------|
+| Name | Coffee name and origin |
+| Region | Ethiopian growing region |
+| Grade | Quality grade (1-5) |
+| Price | FOB price per kg |
+| Stock | Available quantity |
+| Actions | Edit / Delete |
+
+![Products Management Interface](/screenshots/admin_products.png)
+
+### Adding a New Product
+
+1. Click **"Add Coffee"** button
+2. Fill in the product form:
+   - Name, region, and grade
+   - Processing method
+   - Flavor notes
+   - Price and stock quantity
+   - Upload product image
+3. Click **"Save"**
+
+### Editing Products
+
+Click the **Edit** icon on any product row to modify its details.
+
+### Deleting Products
+
+Click the **Delete** icon and confirm to remove a product.
+
+## Inquiry Management
+
+View and respond to buyer inquiries:
+
+1. Navigate to **Inquiries** in the sidebar
+2. Click on an inquiry to view details
+3. Update the status as you process the request
+4. Add internal notes for your team
+
+### Inquiry Statuses
+
+- **Pending**: New inquiry, needs review
+- **Reviewed**: Under consideration
+- **Quoted**: Quote sent to buyer
+- **Completed**: Transaction complete
+- **Rejected**: Inquiry declined
+
+![Inquiry Management](/screenshots/admin-inquiries.png)
+
+## User Management
+
+Manage platform users and their roles:
+
+### Viewing Users
+
+Navigate to **Users** to see all registered accounts:
+
+- Name and email
+- Role (buyer/admin)
+- Registration date
+- Last login
+
+### Changing User Roles
+
+1. Locate the user in the table
+2. Click the **Role** dropdown
+3. Select the new role (buyer or admin)
+4. Changes are saved automatically
+
+<Callout type="info">
+  Be careful when granting admin access. Admins have full control over the platform.
+</Callout>
+
+![User Management](/screenshots/admin-users.png)
+
+## Pricing Locations
+
+Manage delivery locations and associated pricing:
+
+1. Navigate to **Pricing** in the sidebar
+2. Add/edit/remove delivery locations
+3. Set pricing multipliers per location
