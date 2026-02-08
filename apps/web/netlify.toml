@@ -1,5 +1,6 @@
 [build]
-  command = "npm run build"
+  base = "apps/web"
+  command = "cd ../.. && corepack enable && pnpm install --frozen-lockfile && pnpm build:web"
   publish = ".next"
 
 [build.environment]
