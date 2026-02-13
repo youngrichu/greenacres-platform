@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@greenacres/auth';
 import { getInquiriesByUser } from '@greenacres/db';
 import type { Inquiry, InquiryStatus } from '@greenacres/types';
+import { BagSizeLabels, BagTypeLabels } from '@greenacres/types';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@greenacres/ui';
 import {
     FileText,
@@ -224,6 +225,9 @@ export default function InquiriesPage() {
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-gold font-semibold">{item.quantity}</p>
+                                                <p className="text-cream/40 text-xs">
+                                                    {BagSizeLabels[item.bagSize] || item.bagSize || '—'} · {BagTypeLabels[item.bagType] || item.bagType || '—'}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}

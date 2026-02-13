@@ -39,6 +39,7 @@ import {
     ShoppingBag
 } from 'lucide-react';
 import type { Inquiry, InquiryStatus } from '@greenacres/types';
+import { BagSizeLabels, BagTypeLabels } from '@greenacres/types';
 import { getInquiries, updateInquiryStatus, addInquiryNotes } from '@greenacres/db';
 
 const statusConfig: Record<InquiryStatus, { label: string; badgeClass: string; icon: typeof Clock }> = {
@@ -435,6 +436,9 @@ export default function InquiriesPage() {
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-cream font-semibold">{item.quantity} bags</p>
+                                                    <p className="text-cream/50 text-xs">
+                                                        {BagSizeLabels[item.bagSize] || item.bagSize || '—'} · {BagTypeLabels[item.bagType] || item.bagType || '—'}
+                                                    </p>
                                                 </div>
                                             </div>
                                         ))}

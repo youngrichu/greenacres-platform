@@ -3,28 +3,18 @@
 import { createInquiry, createFormattedEmail } from '@greenacres/db';
 import { sendEmail, sendAdminNotification } from '@/lib/mailtrap';
 import { User, InquirySubmission, ApiResponse, Inquiry } from '@greenacres/types';
-import { LocationLabels } from '@greenacres/types';
+import { LocationLabels, BagSizeLabels, BagTypeLabels } from '@greenacres/types';
 
-export async function submitInquiryAction(
+export async function sendInquiryEmailsAction(
     user: User,
-    data: InquirySubmission
-): Promise<ApiResponse<Inquiry>> {
+    inquiry: Inquiry
+): Promise<ApiResponse<void>> {
     try {
-        // 1. Create Inquiry in Firestore
-        // Note: The createInquiry function in @greenacres/db is safe to call from server environment
-        const result = await createInquiry(user, data);
-
-        if (!result.success || !result.data) {
-            return { success: false, error: result.error || 'Failed to create inquiry record' };
-        }
-
-        const inquiry = result.data;
-
         // 2. Prepare Email Content
         const itemList = inquiry.coffeeItems
             .map(
                 (item) =>
-                    `<li><strong>${item.coffeeName}</strong><br>Quantity: ${item.quantity} bags<br>Location: ${LocationLabels[item.preferredLocation]}</li>`
+                    `<li><strong>${item.coffeeName}</strong><br>Quantity: ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType})<br>Location: ${LocationLabels[item.preferredLocation]}</li>`
             )
             .join('');
 
@@ -71,9 +61,7 @@ export async function submitInquiryAction(
             html: createFormattedEmail(buyerContent, 'Inquiry Confirmation'),
         });
 
-        // 5. Return success
-        // We re-serialize the data to ensure it's simple JSON (dates as strings if needed, but Next.js handles Dates usually)
-        return { success: true, data: inquiry };
+        return { success: true };
     } catch (error) {
         console.error('Server Action Error:', error);
         return {

@@ -45,7 +45,7 @@ import { createFormattedEmail } from '../templates/email-theme';
 /**
  * Notify admin about a new registration
  */
-import { User, InquirySubmission, InquiryItem } from '@greenacres/types';
+import { User, InquirySubmission, InquiryItem, BagSizeLabels, BagTypeLabels } from '@greenacres/types';
 
 /**
  * Notify admin about a new registration
@@ -143,7 +143,7 @@ export async function notifyUserStatusUpdate(userData: User): Promise<void> {
  */
 export async function notifyAdminInquiry(userData: User, inquiryData: InquirySubmission): Promise<void> {
     const coffeeItemsHtml = inquiryData.coffeeItems.map((item: InquiryItem) =>
-        `<li>${item.coffeeName} - ${item.quantity} bags (Location: ${item.preferredLocation})</li>`
+        `<li>${item.coffeeName} - ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType}) — Location: ${item.preferredLocation}</li>`
     ).join('');
 
     const content = `
@@ -174,7 +174,7 @@ export async function notifyAdminInquiry(userData: User, inquiryData: InquirySub
  */
 export async function notifyBuyerInquiryConfirmation(userData: User, inquiryData: InquirySubmission): Promise<void> {
     const coffeeItemsHtml = inquiryData.coffeeItems.map((item: InquiryItem) =>
-        `<li>${item.coffeeName} - ${item.quantity} bags</li>`
+        `<li>${item.coffeeName} - ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType})</li>`
     ).join('');
 
     const content = `

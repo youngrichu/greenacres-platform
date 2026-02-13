@@ -140,11 +140,26 @@ export type FlavorCategory = keyof typeof FlavorCategories;
 
 export type InquiryStatus = 'new' | 'reviewed' | 'completed' | 'cancelled';
 
+export type BagSize = '60kg' | '30kg';
+export type BagType = 'jute' | 'grainpro';
+
+export const BagSizeLabels: Record<BagSize, string> = {
+    '60kg': '60 kg',
+    '30kg': '30 kg',
+};
+
+export const BagTypeLabels: Record<BagType, string> = {
+    jute: 'Jute Bag',
+    grainpro: 'GrainPro',
+};
+
 export interface InquiryItem {
     coffeeId: string;
     coffeeName: string;
     quantity: number;
     preferredLocation: Location;
+    bagSize: BagSize;
+    bagType: BagType;
 }
 
 export interface Inquiry {

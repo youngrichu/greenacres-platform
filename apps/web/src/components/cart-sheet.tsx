@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@greenacres/auth';
 import { useCart } from '@/contexts/cart-context';
-import { submitInquiryAction } from '@/app/actions/inquiry';
+import { createInquiry } from '@greenacres/db';
+import { sendInquiryEmailsAction } from '@/app/actions/inquiry';
 import {
     Sheet,
     SheetContent,
@@ -25,7 +26,7 @@ import {
     Minus,
     Package
 } from 'lucide-react';
-import { LocationLabels } from '@greenacres/types';
+import { LocationLabels, BagSizeLabels, BagTypeLabels } from '@greenacres/types';
 
 export function CartSheet() {
     const { user } = useAuth();
@@ -41,13 +42,25 @@ export function CartSheet() {
         try {
             setIsSubmitting(true);
 
-            const result = await submitInquiryAction(user, {
+            const submissionData = {
                 coffeeItems: items,
                 targetShipmentDate: targetDate ? new Date(targetDate) : undefined,
                 message: message || undefined
-            });
+            };
 
-            if (result.success) {
+            // 1. Create Inquiry in Firestore (Client Side - Authenticated)
+            const createResult = await createInquiry(user, submissionData);
+
+            if (!createResult.success || !createResult.data) {
+                console.error('Failed to create inquiry:', createResult.error);
+                // Ideally we show an error message to the user here
+                return;
+            }
+
+            // 2. Send Emails (Server Action - Privileged)
+            const emailResult = await sendInquiryEmailsAction(user, createResult.data);
+
+            if (createResult.success) {
                 setSuccess(true);
                 setTimeout(() => {
                     setSuccess(false);
@@ -129,6 +142,8 @@ export function CartSheet() {
                                             </p>
                                             <div className="flex items-center gap-2 text-sm text-gold">
                                                 <span className="font-mono">{item.quantity} bags</span>
+                                                <span className="text-cream/30">·</span>
+                                                <span className="text-cream/50 text-xs">{BagSizeLabels[item.bagSize] || item.bagSize}, {BagTypeLabels[item.bagType] || item.bagType}</span>
                                             </div>
                                         </div>
                                     </div>

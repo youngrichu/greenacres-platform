@@ -36,8 +36,8 @@ import {
     Maximize2,
     X,
 } from 'lucide-react';
-import type { CoffeeProduct, Location, Availability, InquiryItem } from '@greenacres/types';
-import { LocationLabels } from '@greenacres/types';
+import type { CoffeeProduct, Location, Availability, InquiryItem, BagSize, BagType } from '@greenacres/types';
+import { LocationLabels, BagSizeLabels, BagTypeLabels } from '@greenacres/types';
 
 const availabilityColors: Record<Availability, string> = {
     in_stock: 'badge-success',
@@ -79,6 +79,8 @@ export default function CoffeeDetailView({
     const [quantity, setQuantity] = useState('');
     const [targetDate, setTargetDate] = useState('');
     const [message, setMessage] = useState('');
+    const [bagSize, setBagSize] = useState<BagSize>('60kg');
+    const [bagType, setBagType] = useState<BagType>('jute');
     const [activeMediaIndex, setActiveMediaIndex] = useState(0);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -109,6 +111,8 @@ export default function CoffeeDetailView({
             coffeeName: `${coffee.region} ${coffee.grade} ${coffee.preparation === 'washed' ? 'Washed' : 'Natural'}`,
             quantity: parseInt(quantity) || 1,
             preferredLocation: selectedLocation,
+            bagSize,
+            bagType,
         });
     };
 
@@ -120,7 +124,9 @@ export default function CoffeeDetailView({
             quantity,
             selectedLocation,
             targetDate,
-            message
+            message,
+            bagSize,
+            bagType,
         });
 
         if (!submitError) {
@@ -385,6 +391,39 @@ export default function CoffeeDetailView({
                                                 onChange={(e) => setTargetDate(e.target.value)}
                                                 className="input-premium bg-black/20"
                                             />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-xs text-cream/60">Bag Size</Label>
+                                            <Select value={bagSize} onValueChange={(v) => setBagSize(v as BagSize)}>
+                                                <SelectTrigger className="input-premium bg-black/20">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-forest-dark border-gold/20">
+                                                    {Object.entries(BagSizeLabels).map(([value, label]) => (
+                                                        <SelectItem key={value} value={value} className="text-cream focus:bg-gold/20 focus:text-gold">
+                                                            {label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-xs text-cream/60">Bag Type</Label>
+                                            <Select value={bagType} onValueChange={(v) => setBagType(v as BagType)}>
+                                                <SelectTrigger className="input-premium bg-black/20">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-forest-dark border-gold/20">
+                                                    {Object.entries(BagTypeLabels).map(([value, label]) => (
+                                                        <SelectItem key={value} value={value} className="text-cream focus:bg-gold/20 focus:text-gold">
+                                                            {label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
 

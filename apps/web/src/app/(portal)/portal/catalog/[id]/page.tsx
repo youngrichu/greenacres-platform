@@ -39,7 +39,7 @@ import {
 import type { CoffeeProduct, Location, Availability, InquiryItem } from '@greenacres/types';
 import { getCoffeeById, createInquiry } from '@greenacres/db';
 import { LocationLabels } from '@greenacres/types';
-import { submitInquiryAction } from '@/app/actions/inquiry';
+import { sendInquiryEmailsAction } from '@/app/actions/inquiry';
 
 const availabilityColors: Record<Availability, string> = {
     in_stock: 'badge-success',
@@ -114,6 +114,8 @@ export default function CoffeeDetailPage() {
                 coffeeName: `${coffee.region} ${coffee.grade} ${coffee.preparation === 'washed' ? 'Washed' : 'Natural'}`,
                 quantity: parseInt(data.quantity) || 1,
                 preferredLocation: data.selectedLocation,
+                bagSize: data.bagSize || '60kg',
+                bagType: data.bagType || 'jute',
             };
 
             const submissionData = {
@@ -122,16 +124,29 @@ export default function CoffeeDetailPage() {
                 message: data.message || undefined,
             };
 
-            const result = await submitInquiryAction(user, submissionData);
+            // 1. Create Inquiry in Firestore (Client Side - Authenticated)
+            const createResult = await createInquiry(user, submissionData);
 
-            if (result.success) {
+            if (!createResult.success || !createResult.data) {
+                throw new Error(createResult.error || 'Failed to create inquiry record');
+            }
+
+            // 2. Send Emails (Server Action - Privileged)
+            // We pass the created inquiry object to the server action
+            const emailResult = await sendInquiryEmailsAction(user, createResult.data);
+
+            if (emailResult.success) {
                 setSubmitSuccess(true);
             } else {
-                setSubmitError(result.error || 'Failed to submit inquiry');
+                // Determine if we should show success partially or failure
+                // Inquiry IS created, so strictly speaking it's a success for the user, just email failed.
+                // We'll show success but maybe log the error.
+                console.error('Failed to send emails:', emailResult.error);
+                setSubmitSuccess(true); // Still consider it a success for the UI
             }
         } catch (err) {
             console.error('Failed to submit inquiry:', err);
-            setSubmitError('Failed to submit inquiry. Please try again.');
+            setSubmitError(err instanceof Error ? err.message : 'Failed to submit inquiry. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
