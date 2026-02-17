@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Playfair_Display, Outfit } from "next/font/google";
 import { AuthProvider } from "@greenacres/auth";
+import { Toaster } from "@/components/ui/toaster";
+import SmoothScroller from "@/components/providers/smooth-scroller";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,6 +13,12 @@ const inter = Inter({
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
 });
@@ -41,11 +49,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} ${playfair.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+    <html
+      lang="en"
+      className={`${playfair.variable} ${inter.variable} ${outfit.variable}`}
+    >
+      <body className="font-sans antialiased bg-cream text-forest-dark overflow-x-hidden">
+        <SmoothScroller />
+        <AuthProvider>{children}</AuthProvider>
+        <Toaster />
       </body>
     </html>
   );
