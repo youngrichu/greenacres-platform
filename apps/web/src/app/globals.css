@@ -570,12 +570,12 @@ input[type="date"] {
 
 /* Section spacing */
 .section-padding {
-  padding: 6rem 1.5rem;
+  padding: 4rem 1.5rem;
 }
 
 @media (min-width: 768px) {
   .section-padding {
-    padding: 8rem 2rem;
+    padding: 5rem 2rem;
   }
 }
 
@@ -709,7 +709,7 @@ input[type="date"] {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
 
   body {

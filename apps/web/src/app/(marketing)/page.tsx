@@ -1,7 +1,10 @@
-
 import Hero from "@/components/Hero";
+import Introduction from "@/components/Introduction";
 import Statistics from "@/components/Statistics";
-import AboutUs from "@/components/AboutUs";
+import AboutUsStory from "@/components/AboutUsStory";
+import MissionVision from "@/components/MissionVision";
+import GreenAcresDifference from "@/components/GreenAcresDifference";
+import Team from "@/components/Team";
 import CoffeeMap from "@/components/CoffeeMap";
 import CoffeeShowcase from "@/components/CoffeeShowcase";
 import EthiopiaCulture from "@/components/EthiopiaCulture";
@@ -13,13 +16,25 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Statistics />
-      <AboutUs />
-      <CoffeeMap />
-      <CoffeeShowcase />
+      <Introduction />
+
+      {/* Identity & Origin Block */}
       <EthiopiaCulture />
+      <AboutUsStory />
+      <CoffeeMap />
+      <MissionVision />
+
+      {/* Product & Validation Block */}
+      <CoffeeShowcase />
+      <Statistics />
+
+      {/* Logistics & Service Block */}
       <CoffeeJourney />
       <OrderingProcess />
+      <GreenAcresDifference />
+
+      {/* Team Block */}
+      <Team />
     </>
   );
 }

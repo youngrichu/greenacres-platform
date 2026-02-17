@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ArrowRight, MapPin } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Badge } from "@/components/ui/badge";
+import { CoffeeBranchImage, CoffeeLeafImage } from "./CoffeeDecorationsImage";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,7 +25,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "yirgacheffe",
         name: "Yirgacheffe",
-        position: { top: "60%", left: "48%" }, // Explicitly South of Sidama
+        position: { top: "68%", left: "45%" }, // Gedio zone — south of Sidama
         altitude: "1,750 - 2,200m",
         process: ["Washed", "Natural"],
         flavor: ["Floral", "Citrus", "Bergamot", "Tea-like"],
@@ -35,7 +36,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "sidama",
         name: "Sidama",
-        position: { top: "52%", left: "48%" }, // Central South
+        position: { top: "63%", left: "42%" }, // Sidama zone — south-central, west of Rift Valley
         altitude: "1,500 - 2,200m",
         process: ["Washed", "Natural", "Honey"],
         flavor: ["Berry", "Wine", "Chocolate", "Citrus"],
@@ -46,7 +47,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "guji",
         name: "Guji",
-        position: { top: "65%", left: "60%" }, // Distinctly South East
+        position: { top: "70%", left: "52%" }, // Southern Oromiya — southeast of Sidama, within highland belt
         altitude: "1,800 - 2,300m",
         process: ["Natural", "Washed"],
         flavor: ["Stone Fruit", "Jasmine", "Honey", "Complex"],
@@ -57,7 +58,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "jimma",
         name: "Jimma",
-        position: { top: "52%", left: "28%" }, // South West
+        position: { top: "55%", left: "32%" }, // Western Oromiya — Jimma zone
         altitude: "1,400 - 2,000m",
         process: ["Natural", "Washed"],
         flavor: ["Earthy", "Spicy", "Full-bodied", "Wild"],
@@ -68,7 +69,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "kaffa",
         name: "Kaffa",
-        position: { top: "58%", left: "24%" }, // South of Jimma
+        position: { top: "62%", left: "27%" }, // Keficho Shekicho — south of Jimma in SNNPR
         altitude: "1,450 - 2,100m",
         process: ["Washed", "Natural"],
         flavor: ["Winey", "Chocolate", "Berry", "Spice"],
@@ -79,7 +80,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "teppi",
         name: "Teppi",
-        position: { top: "50%", left: "18%" }, // Further West
+        position: { top: "52%", left: "22%" }, // Illubabor area — western Ethiopia
         altitude: "1,100 - 1,900m",
         process: ["Natural"],
         flavor: ["Wild", "Herbal", "Citrus", "Nutty"],
@@ -90,7 +91,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "andrecha",
         name: "Andrecha",
-        position: { top: "62%", left: "18%" }, // South West
+        position: { top: "66%", left: "20%" }, // Bench Maji — far southwest Ethiopia
         altitude: "1,500 - 2,000m",
         process: ["Natural"],
         flavor: ["Sweet", "Fruity", "Full body", "Spice"],
@@ -101,7 +102,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "limmu",
         name: "Limmu",
-        position: { top: "45%", left: "32%" }, // West (top of yellow zone)
+        position: { top: "48%", left: "34%" }, // Western Oromiya — between Jimma and Wellega
         altitude: "1,400 - 2,200m",
         process: ["Washed"],
         flavor: ["Wine", "Spice", "Floral", "Sweet"],
@@ -112,7 +113,7 @@ const coffeeRegions: CoffeeRegion[] = [
     {
         id: "lekempti",
         name: "Lekempti",
-        position: { top: "30%", left: "25%" }, // North West (Cyan zone)
+        position: { top: "38%", left: "24%" }, // East Wellega zone — northwestern Oromiya
         altitude: "1,500 - 2,100m",
         process: ["Natural", "Washed"],
         flavor: ["Fruity", "Blueberry", "Winey", "Bold"],
@@ -174,15 +175,29 @@ export default function CoffeeMap() {
             id="regions"
             className="section-padding bg-forest relative overflow-hidden"
         >
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-5">
+            {/* Background decorations */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Dot grid */}
                 <div
-                    className="absolute inset-0"
+                    className="absolute inset-0 opacity-[0.05]"
                     style={{
                         backgroundImage: `radial-gradient(circle at 2px 2px, rgba(212,168,83,0.4) 1px, transparent 0)`,
                         backgroundSize: "48px 48px",
                     }}
                 />
+
+                {/* Coffee branch — top-right */}
+                <div className="absolute -top-16 -right-20 w-[420px] h-[420px] opacity-[0.08] rotate-[170deg] mix-blend-screen">
+                    <CoffeeBranchImage className="w-full h-full" />
+                </div>
+
+                {/* Coffee leaf — bottom-left */}
+                <div className="absolute -bottom-12 -left-16 w-[350px] h-[350px] opacity-[0.07] rotate-45 mix-blend-screen">
+                    <CoffeeLeafImage className="w-full h-full" />
+                </div>
+
+                {/* Grain texture */}
+                <div className="absolute inset-0 bg-[url('/assets/grain-texture.png')] opacity-[0.05] mix-blend-overlay" />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto">
@@ -219,7 +234,7 @@ export default function CoffeeMap() {
                         >
                             {/* Map Image */}
                             <Image
-                                src="/images/ethiopia-map.png"
+                                src="/images/ethiopia-map-original.png"
                                 alt="Map of Ethiopian coffee growing regions"
                                 fill
                                 className="object-cover"

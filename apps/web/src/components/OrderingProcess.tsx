@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { CoffeeBeansScatteredImage } from "./CoffeeDecorationsImage";
+import { CoffeeBeansScatteredImage, CoffeeBranchImage } from "./CoffeeDecorationsImage";
 import { Copy, FileText, CheckSquare, Package, Truck, ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -103,9 +103,22 @@ export default function OrderingProcess() {
     return (
         <section ref={sectionRef} id="how-to-order" className="section-padding bg-forest-dark relative overflow-hidden">
             {/* Background Elements */}
-            <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
-                <CoffeeBeansScatteredImage className="absolute top-20 right-10 w-64 h-64 rotate-12" />
-                <CoffeeBeansScatteredImage className="absolute bottom-40 left-10 w-48 h-48 -rotate-45" />
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="opacity-10">
+                    <CoffeeBeansScatteredImage className="absolute top-20 right-10 w-64 h-64 rotate-12" variant="light-ink" />
+                    <CoffeeBeansScatteredImage className="absolute bottom-40 left-10 w-48 h-48 -rotate-45" variant="light-ink" />
+                </div>
+                <div className="absolute -top-16 -left-16 w-[400px] h-[400px] opacity-[0.08]">
+                    <CoffeeBranchImage className="w-full h-full rotate-12" variant="light-ink" />
+                </div>
+                <div
+                    className="absolute inset-0 opacity-[0.04]"
+                    style={{
+                        backgroundImage: `radial-gradient(circle at 2px 2px, rgba(212,168,83,0.4) 1px, transparent 0)`,
+                        backgroundSize: "48px 48px",
+                    }}
+                />
+                <div className="absolute inset-0 bg-[url('/assets/grain-texture.png')] opacity-[0.05] mix-blend-overlay" />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto">

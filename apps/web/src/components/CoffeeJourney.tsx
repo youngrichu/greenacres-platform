@@ -3,10 +3,12 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { CoffeeBranchImage, CoffeeBeansScatteredImage, CoffeeLeafImage } from "./CoffeeDecorationsImage";
+import { CoffeeBranchImage, CoffeeLeafImage, CoffeeBeansScatteredImage } from "./CoffeeDecorationsImage";
+
 import { Mountain, Hand, Factory, SlidersHorizontal, Globe, ArrowRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
+
 
 interface JourneyStep {
     number: string;
@@ -106,36 +108,44 @@ export default function CoffeeJourney() {
         <section
             ref={sectionRef}
             id="story"
-            className="section-padding bg-cream relative overflow-hidden"
+            className="relative overflow-hidden py-20 md:py-28 bg-cream"
         >
-            {/* Background decoration */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-gold/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl opacity-50" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-forest/5 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl opacity-50" />
+            {/* Artistic illustration background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Coffee branch — top-right */}
+                <div className="absolute -top-12 -right-12 w-[400px] h-[400px] opacity-[0.08] rotate-180">
+                    <CoffeeBranchImage className="w-full h-full" />
+                </div>
 
-            {/* Organic Stylized Decorations */}
-            <div className="absolute top-0 left-0 w-[500px] h-[500px] pointer-events-none select-none transform -rotate-12 -translate-x-1/3 -translate-y-1/4 opacity-10">
-                <CoffeeBranchImage className="w-full h-full" />
+                {/* Coffee leaf — bottom-left */}
+                <div className="absolute -bottom-16 -left-16 w-[350px] h-[350px] opacity-[0.07] -rotate-45">
+                    <CoffeeLeafImage className="w-full h-full" />
+                </div>
+
+                {/* Scattered beans — mid-left accent */}
+                <div className="absolute top-1/2 -left-8 w-[250px] h-[250px] opacity-[0.05] rotate-12">
+                    <CoffeeBeansScatteredImage className="w-full h-full" />
+                </div>
+
+                {/* Radial gold glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-radial from-gold/5 via-gold/2 to-transparent rounded-full blur-3xl" />
+
+                {/* Dot grid */}
+                <div
+                    className="absolute inset-0 opacity-[0.03]"
+                    style={{
+                        backgroundImage: `radial-gradient(circle, #1B3D2F 1px, transparent 1px)`,
+                        backgroundSize: '32px 32px',
+                    }}
+                />
+
+                {/* Grain texture */}
+                <div className="absolute inset-0 bg-[url('/assets/grain-texture.png')] opacity-[0.04] mix-blend-overlay" />
             </div>
 
-            <div className="absolute top-1/4 right-0 w-[300px] h-[300px] pointer-events-none select-none transform rotate-45 translate-x-1/3 opacity-10">
-                <CoffeeLeafImage className="w-full h-full" />
-            </div>
-
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] pointer-events-none select-none transform rotate-90 -translate-x-1/3 translate-y-1/3 opacity-10">
-                <CoffeeBranchImage className="w-full h-full" />
-            </div>
-
-            <div className="absolute top-2/3 left-20 w-40 h-40 pointer-events-none select-none animate-float-slow opacity-15">
-                <CoffeeBeansScatteredImage className="w-full h-full rotate-45" />
-            </div>
-
-            <div className="absolute bottom-1/3 right-10 w-48 h-48 pointer-events-none select-none animate-float-delayed opacity-10">
-                <CoffeeBeansScatteredImage className="w-full h-full -rotate-12" />
-            </div>
-
-            <div className="relative z-10 max-w-6xl mx-auto">
+            <div className="relative z-10 max-w-6xl mx-auto px-6">
                 {/* Section header */}
-                <div className="text-center mb-20">
+                <div className="text-center mb-12">
                     <span className="text-gold text-sm font-semibold tracking-widest uppercase">
                         The Journey
                     </span>
@@ -156,7 +166,7 @@ export default function CoffeeJourney() {
                     {/* Connecting line */}
                     <div
                         ref={lineRef}
-                        className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold via-forest to-gold origin-top hidden md:block"
+                        className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-gold via-forest/20 to-gold origin-top hidden md:block"
                         style={{ transform: "translateX(-50%)" }}
                     />
 
@@ -171,7 +181,7 @@ export default function CoffeeJourney() {
                                 {/* Content card */}
                                 <div className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"}`}>
                                     <div
-                                        className={`bg-white rounded-2xl p-8 shadow-lg shadow-forest/5 border border-cream-dark ${index % 2 === 0 ? "md:ml-auto" : "md:mr-auto"
+                                        className={`bg-white rounded-2xl p-8 shadow-md border border-cream-dark hover:shadow-xl hover:border-gold/30 transition-all duration-300 ${index % 2 === 0 ? "md:ml-auto" : "md:mr-auto"
                                             } max-w-md`}
                                     >
                                         <span className="text-gold text-5xl font-bold opacity-30">
@@ -188,7 +198,7 @@ export default function CoffeeJourney() {
 
                                 {/* Center icon */}
                                 <div className="relative z-10 flex-shrink-0">
-                                    <div className="w-16 h-16 rounded-full bg-forest text-gold flex items-center justify-center shadow-lg shadow-forest/20">
+                                    <div className="w-16 h-16 rounded-full bg-gold text-forest flex items-center justify-center shadow-lg shadow-gold/20">
                                         <step.icon className="w-8 h-8" />
                                     </div>
                                 </div>
@@ -207,7 +217,7 @@ export default function CoffeeJourney() {
                     </p>
                     <a
                         href="#contact"
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-forest text-white font-semibold rounded-full hover:bg-forest-light transition-all hover:scale-105 shadow-lg"
+                        className="inline-flex items-center gap-3 px-8 py-4 bg-gold text-forest font-semibold rounded-full hover:bg-gold-dark transition-all hover:scale-105 shadow-lg"
                     >
                         Partner With Us
                         <ArrowRight className="w-5 h-5" />

@@ -3,131 +3,142 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface StatItemProps {
-    value: number;
-    suffix?: string;
-    label: string;
-    delay?: number;
-}
-
-function StatItem({ value, suffix = "", label, delay = 0 }: StatItemProps) {
-    const [count, setCount] = useState(0);
-    const itemRef = useRef<HTMLDivElement>(null);
-    const hasAnimated = useRef(false);
-
-    useEffect(() => {
-        const element = itemRef.current;
-        if (!element) return;
-
-        const trigger = ScrollTrigger.create({
-            trigger: element,
-            start: "top 80%",
-            onEnter: () => {
-                if (hasAnimated.current) return;
-                hasAnimated.current = true;
-
-                // Animate the counter
-                gsap.to(
-                    { val: 0 },
-                    {
-                        val: value,
-                        duration: 2,
-                        delay,
-                        ease: "power2.out",
-                        onUpdate: function () {
-                            setCount(Math.floor(this.targets()[0].val));
-                        },
-                    }
-                );
-
-                // Animate the element appearance
-                gsap.fromTo(
-                    element,
-                    { y: 40, opacity: 0 },
-                    { y: 0, opacity: 1, duration: 0.8, delay, ease: "power3.out" }
-                );
-            },
-        });
-
-        return () => trigger.kill();
-    }, [value, delay]);
-
-    return (
-        <div
-            ref={itemRef}
-            className="text-center opacity-0"
-        >
-            <div className="text-5xl sm:text-6xl md:text-7xl font-bold text-forest mb-2">
-                {count.toLocaleString()}
-                <span className="text-gold">{suffix}</span>
-            </div>
-            <div className="text-foreground-muted text-sm sm:text-base uppercase tracking-widest">
-                {label}
-            </div>
-        </div>
-    );
-}
+const stats = [
+    { value: 4, suffix: "", label: "Coffee Regions" },
+    { value: 7, suffix: "", label: "Processing Stations" },
+    { value: 25, suffix: "+", label: "Export Destinations" },
+    { value: 10560, suffix: "+", label: "Tons Exported Yearly" },
+];
 
 export default function Statistics() {
     const sectionRef = useRef<HTMLElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const hasAnimated = useRef(false);
+    const [counts, setCounts] = useState<number[]>(stats.map(() => 0));
 
-    const stats = [
-        { value: 4, suffix: "", label: "Coffee Regions" },
-        { value: 7, suffix: "", label: "Processing Stations" },
-        { value: 25, suffix: "+", label: "Export Destinations" },
-        { value: 10560, suffix: "+", label: "Tons Exported Yearly" },
-    ];
+    // Slow video playback
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = 0.6;
+        }
+    }, []);
+
+    // Sequential animation triggered from the section
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            ScrollTrigger.create({
+                trigger: sectionRef.current,
+                start: "top 70%",
+                onEnter: () => {
+                    if (hasAnimated.current) return;
+                    hasAnimated.current = true;
+
+                    circleRefs.current.forEach((el, i) => {
+                        if (!el) return;
+
+                        // Scale + fade in with stagger
+                        gsap.to(el, {
+                            scale: 1,
+                            opacity: 1,
+                            duration: 0.8,
+                            ease: "back.out(1.7)",
+                            delay: i * 0.25,
+                        });
+
+                        // Count up with matching stagger
+                        const counter = { val: 0 };
+                        gsap.to(counter, {
+                            val: stats[i].value,
+                            duration: 2,
+                            ease: "power2.out",
+                            delay: i * 0.25,
+                            onUpdate: () => {
+                                setCounts(prev => {
+                                    const next = [...prev];
+                                    next[i] = Math.ceil(counter.val);
+                                    return next;
+                                });
+                            },
+                        });
+                    });
+                },
+            });
+        }, sectionRef);
+
+        return () => ctx.revert();
+    }, []);
 
     return (
         <section
             ref={sectionRef}
-            className="section-padding bg-cream relative overflow-hidden"
+            className="relative overflow-hidden py-20 md:py-28"
         >
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-5">
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a3a2a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                    }}
-                />
-            </div>
+            {/* Background Video */}
+            <video
+                ref={videoRef}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+            >
+                <source src="/assets/videos/coffe_for_numbers.mp4" type="video/mp4" />
+            </video>
 
-            <div className="relative z-10 max-w-6xl mx-auto">
-                {/* Section header */}
-                <div className="text-center mb-16">
-                    <span className="text-gold text-sm font-semibold tracking-widest uppercase">
-                        Our Impact
-                    </span>
-                    <h2
-                        className="text-3xl sm:text-4xl md:text-5xl font-bold text-forest mt-4"
-                        style={{ fontFamily: "var(--font-playfair)" }}
-                    >
-                        Numbers That Matter
+            {/* Cinematic overlay layers */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50" />
+            <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.45) 100%)' }} />
+
+            <div className="relative z-10 max-w-7xl mx-auto px-6">
+                <div className="text-center mb-12 max-w-3xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ fontFamily: "var(--font-playfair)" }}>
+                        Impact by the Numbers
                     </h2>
+                    <p className="text-white/70 text-lg">
+                        Our scale allows us to deliver consistency, while our local roots ensure we never lose touch with the community.
+                    </p>
                 </div>
 
-                {/* Stats grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-                    {stats.map((stat, index) => (
-                        <StatItem
-                            key={stat.label}
-                            value={stat.value}
-                            suffix={stat.suffix}
-                            label={stat.label}
-                            delay={index * 0.15}
-                        />
+                {/* Circular/Cluster Layout */}
+                <div className="flex flex-wrap items-center justify-center gap-6 lg:gap-0">
+                    {stats.map((s, i) => (
+                        <div key={i} className={cn(
+                            "transform transition-transform lg:-ml-6 first:ml-0",
+                            i % 2 === 0 ? "md:translate-y-6" : "md:-translate-y-6"
+                        )}>
+                            <div
+                                ref={(el) => { circleRefs.current[i] = el; }}
+                                className={cn(
+                                    "relative group flex flex-col items-center justify-center text-center rounded-full transition-all duration-500",
+                                    "w-56 h-56 md:w-64 md:h-64",
+                                    "bg-white/90 backdrop-blur-md hover:bg-forest hover:text-white shadow-xl hover:shadow-2xl hover:-translate-y-2 border border-white/30 hover:border-gold/50",
+                                    "mx-auto"
+                                )}
+                                style={{ opacity: 0, transform: "scale(0.5)" }}
+                            >
+                                <div className="relative z-10 p-6 flex flex-col items-center">
+                                    <span
+                                        className="text-4xl md:text-5xl font-bold mb-2 text-forest group-hover:text-gold transition-colors duration-300"
+                                        style={{ fontFamily: "var(--font-playfair)" }}
+                                    >
+                                        {counts[i].toLocaleString()}{s.suffix}
+                                    </span>
+                                    <span className="text-xs tracking-widest uppercase font-semibold text-gold group-hover:text-white/80 transition-colors">
+                                        {s.label}
+                                    </span>
+                                </div>
+
+                                {/* Decorative ring */}
+                                <div className="absolute inset-2 border border-dashed border-black/10 rounded-full group-hover:border-white/20 transition-colors duration-500" />
+                            </div>
+                        </div>
                     ))}
-                </div>
-
-                {/* Decorative divider */}
-                <div className="flex items-center justify-center gap-4 mt-16">
-                    <div className="h-px w-20 bg-gold/30" />
-                    <div className="w-2 h-2 rounded-full bg-gold" />
-                    <div className="h-px w-20 bg-gold/30" />
                 </div>
             </div>
         </section>
