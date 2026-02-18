@@ -73,7 +73,7 @@ export default function Introduction() {
         />
 
         {/* Grain texture */}
-        <div className="absolute inset-0 bg-[url('/assets/grain-texture.png')] opacity-[0.04] mix-blend-overlay" />
+        <div className="absolute inset-0 grain-texture" />
       </div>
 
       <div

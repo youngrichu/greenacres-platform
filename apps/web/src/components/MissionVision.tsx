@@ -164,7 +164,7 @@ export default function MissionVision() {
               backgroundSize: "32px 32px",
             }}
           />
-          <div className="absolute inset-0 bg-[url('/assets/grain-texture.png')] opacity-[0.04] mix-blend-overlay" />
+          <div className="absolute inset-0 grain-texture" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
@@ -251,7 +251,7 @@ export default function MissionVision() {
               backgroundSize: "32px 32px",
             }}
           />
-          <div className="absolute inset-0 bg-[url('/assets/grain-texture.png')] opacity-[0.04] mix-blend-overlay" />
+          <div className="absolute inset-0 grain-texture" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
