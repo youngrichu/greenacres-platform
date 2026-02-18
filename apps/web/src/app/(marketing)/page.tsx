@@ -6,11 +6,10 @@ import MissionVision from "@/components/MissionVision";
 import GreenAcresDifference from "@/components/GreenAcresDifference";
 import Team from "@/components/Team";
 import CoffeeMap from "@/components/CoffeeMap";
-import CoffeeShowcase from "@/components/CoffeeShowcase";
+import CoffeeScrollShowcase from "@/components/CoffeeScrollShowcase";
 import EthiopiaCulture from "@/components/EthiopiaCulture";
 import CoffeeJourney from "@/components/CoffeeJourney";
 import OrderingProcess from "@/components/OrderingProcess";
-
 
 export default function Home() {
   return (
@@ -25,7 +24,7 @@ export default function Home() {
       <MissionVision />
 
       {/* Product & Validation Block */}
-      <CoffeeShowcase />
+      <CoffeeScrollShowcase />
       <Statistics />
 
       {/* Logistics & Service Block */}

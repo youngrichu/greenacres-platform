@@ -1,9 +1,28 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, createContext, useContext, useRef } from "react";
 import Lenis from "lenis";
 
-export default function SmoothScroller() {
+// Expose the Lenis instance so scroll-jacked sections can pause/resume it
+const LenisContext = createContext<Lenis | null>(null);
+
+export function useLenis() {
+  return useContext(LenisContext);
+}
+
+// Store the instance globally for non-React access
+let globalLenis: Lenis | null = null;
+export function getLenisInstance() {
+  return globalLenis;
+}
+
+export default function SmoothScroller({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  const lenisRef = useRef<Lenis | null>(null);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -15,6 +34,9 @@ export default function SmoothScroller() {
       touchMultiplier: 2,
     });
 
+    lenisRef.current = lenis;
+    globalLenis = lenis;
+
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -24,8 +46,13 @@ export default function SmoothScroller() {
 
     return () => {
       lenis.destroy();
+      globalLenis = null;
     };
   }, []);
 
-  return null;
+  return (
+    <LenisContext.Provider value={lenisRef.current}>
+      {children}
+    </LenisContext.Provider>
+  );
 }
