@@ -8,10 +8,91 @@ import {
   CoffeeLeafImage,
   CoffeeBeansScatteredImage,
 } from "./CoffeeDecorationsImage";
-import { Sprout, MapPin, Search } from "lucide-react";
+import { Sprout } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ---------------------------------------------------------------------------
+// HoverVideoCard
+// On mouseenter: video fades in and plays.
+// On mouseleave: video fades out, pauses, and rewinds to start.
+// ---------------------------------------------------------------------------
+interface HoverVideoCardProps {
+  src: string;
+  alt: string;
+  videoSrc?: string;
+  className?: string;
+}
+
+function HoverVideoCard({
+  src,
+  alt,
+  videoSrc,
+  className = "",
+}: HoverVideoCardProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleMouseEnter = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.style.opacity = "1";
+    video.playbackRate = 0.5;
+    video.play().catch(() => {
+      // Autoplay blocked – silently ignore
+    });
+  };
+
+  const handleMouseLeave = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.style.opacity = "0";
+    // Wait for the fade-out to finish before pausing / rewinding
+    setTimeout(() => {
+      video.pause();
+      video.currentTime = 0;
+    }, 500);
+  };
+
+  return (
+    <div
+      className={`rounded-2xl overflow-hidden relative group ${className}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Static image (always present) */}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover transition-transform duration-700 group-hover:scale-110"
+      />
+
+      {/* Video layer – crossfades over the image on hover */}
+      {videoSrc && (
+        <video
+          ref={videoRef}
+          src={videoSrc}
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            opacity: 0,
+            transition: "opacity 500ms ease",
+          }}
+        />
+      )}
+
+      {/* Overlay tint */}
+      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// EthiopiaCulture
+// ---------------------------------------------------------------------------
 export default function EthiopiaCulture() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -39,7 +120,7 @@ export default function EthiopiaCulture() {
       id="heritage"
       className="py-32 bg-forest relative overflow-hidden text-white"
     >
-      {/* Background Texture - kept subtle */}
+      {/* Background Texture */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div
           className="absolute inset-0"
@@ -56,47 +137,42 @@ export default function EthiopiaCulture() {
       {/* Content Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
-          {/* Left Side: Images Grid */}
+          {/* Left Side: Image / Video Grid */}
           <div className="lg:col-span-7 grid grid-cols-2 gap-4 culture-fade">
+            {/* Column 1 */}
             <div className="space-y-4">
-              <div className="aspect-[3/4] rounded-2xl overflow-hidden relative group">
-                <Image
-                  src="/assets/heritage/coffee-ceremony-1.png"
-                  alt="Traditional Ethiopian Coffee Ceremony"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-              </div>
-              <div className="aspect-square rounded-2xl overflow-hidden relative group">
-                <Image
-                  src="/assets/heritage/coffee-origin-landscape.png"
-                  alt="Ethiopian Highlands Landscape"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-              </div>
+              {/* Ceremony → roasting.mp4 */}
+              <HoverVideoCard
+                src="/assets/heritage/coffee-ceremony-1.png"
+                alt="Traditional Ethiopian Coffee Ceremony"
+                videoSrc="/assets/videos/roasting.mp4"
+                className="aspect-[3/4]"
+              />
+              {/* Landscape → coffee_highland.mp4 */}
+              <HoverVideoCard
+                src="/assets/heritage/coffee-origin-landscape.png"
+                alt="Ethiopian Highlands Landscape"
+                videoSrc="/assets/videos/coffee_highland.mp4"
+                className="aspect-square"
+              />
             </div>
+
+            {/* Column 2 (offset top) */}
             <div className="pt-12 space-y-4">
-              <div className="aspect-square rounded-2xl overflow-hidden relative group">
-                <Image
-                  src="/assets/heritage/coffee-beans-roasting.png"
-                  alt="Traditional Roasting"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-              </div>
-              <div className="aspect-[3/4] rounded-2xl overflow-hidden relative group">
-                <Image
-                  src="/assets/heritage/cultural-hands.png"
-                  alt="Coffee harvesting by hand"
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-              </div>
+              {/* Roasting beans → coffee_roasting.mp4 */}
+              <HoverVideoCard
+                src="/assets/heritage/coffee-beans-roasting.png"
+                alt="Traditional Roasting"
+                videoSrc="/assets/videos/coffee_roasting.mp4"
+                className="aspect-square"
+              />
+              {/* Hands → coffee_hand.mp4 */}
+              <HoverVideoCard
+                src="/assets/heritage/cultural-hands.png"
+                alt="Coffee harvesting by hand"
+                videoSrc="/assets/videos/coffee_hand.mp4"
+                className="aspect-[3/4]"
+              />
             </div>
           </div>
 
