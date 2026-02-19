@@ -88,7 +88,7 @@ export default function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="sticky top-0 -z-10 h-screen w-full flex items-center overflow-hidden bg-forest-dark"
+      className="sticky top-0 z-0 h-screen w-full flex items-center overflow-hidden bg-forest-dark"
     >
       {/* Background Video with Parallax */}
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -139,7 +139,7 @@ export default function Hero() {
 
         <div className="overflow-hidden">
           <Link
-            href="/portal/catalog"
+            href="#coffee"
             className="hero-line inline-flex items-center gap-4 text-white hover:text-gold transition-colors duration-300 group"
           >
             <span className="text-xl md:text-2xl font-light border-b border-white/30 hover:border-gold pb-1 transition-all">
@@ -154,7 +154,8 @@ export default function Hero() {
 
       {/* Scroll Indicator */}
       <div
-        className="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer opacity-0"
+        className="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer"
+        style={{ opacity: 0 }}
         onClick={() => {
           const intro = document.getElementById("introduction");
           if (intro) intro.scrollIntoView({ behavior: "smooth" });

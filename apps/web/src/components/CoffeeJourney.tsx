@@ -83,7 +83,10 @@ export default function CoffeeJourney() {
             ease: "power2.out",
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 60%",
+              start: "top 85%",
+              once: true,
+              invalidateOnRefresh: true,
+              refreshPriority: -1,
             },
           },
         );
@@ -103,7 +106,10 @@ export default function CoffeeJourney() {
               ease: "power3.out",
               scrollTrigger: {
                 trigger: step,
-                start: "top 80%",
+                start: "top 95%",
+                once: true,
+                invalidateOnRefresh: true,
+                refreshPriority: -1,
               },
             },
           );
