@@ -499,6 +499,7 @@ export default function CoffeeScrollShowcase() {
                     className="object-contain drop-shadow-2xl"
                     sizes="(max-width: 768px) 40vw, 420px"
                     priority={i === 0}
+                    unoptimized
                   />
                 </div>
               ))}

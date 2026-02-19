@@ -62,12 +62,21 @@ async function updateCoffeeImages() {
     const newImage = imageUpdates[data.name];
 
     if (newImage) {
+      // Build updated images array: jute bag first, then keep non-jute gallery images
+      const existingImages: string[] = data.images || [];
+      const filteredImages = existingImages.filter(
+        (img: string) =>
+          !img.includes("jute-bag") && !img.includes("coffee-sack"),
+      );
+      const updatedImages = [newImage, ...filteredImages];
+
       await doc.ref.update({
         imageUrl: newImage,
-        // Also update the images array to include this as the first item if needed
-        // For now, we just set the main imageUrl which is what DetailView uses
+        images: updatedImages,
       });
-      console.log(`✅ Updated ${data.name} -> ${newImage}`);
+      console.log(
+        `✅ Updated ${data.name} -> ${newImage} (images: ${updatedImages.length})`,
+      );
       updatedCount++;
     }
   }
