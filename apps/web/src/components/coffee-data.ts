@@ -67,7 +67,7 @@ export const COFFEE_DATA: CoffeeType[] = [
     flavorImage: "/images/flavors/guji-gotae-notes.png",
   },
   {
-    name: "Guji Haro Sorsa",
+    name: "Guji Haro Sorsa (Sisay Station)",
     grade: "Grade 1",
     process: "Washed",
     notes: ["Apricot", "Jasmine", "Sugar Cane"],
