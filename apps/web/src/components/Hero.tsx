@@ -111,7 +111,7 @@ export default function Hero() {
       {/* Content — Centered Editorial Layout */}
       <div
         ref={contentRef}
-        className="relative z-10 w-full px-6 md:px-16 max-w-7xl mx-auto flex flex-col justify-center pt-8 sm:pt-16 md:pt-32 lg:pt-40 h-full"
+        className="relative z-10 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col justify-center pt-8 sm:pt-16 md:pt-32 lg:pt-40 h-full"
       >
         <div className="overflow-hidden mb-6">
           <p className="hero-line text-sm md:text-base uppercase tracking-[0.3em] text-white/70 font-light border-l-2 border-gold pl-4">
