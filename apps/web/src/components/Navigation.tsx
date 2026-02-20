@@ -42,7 +42,7 @@ export default function Navigation() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-forest/95 backdrop-blur-md shadow-lg py-3"
+          ? "bg-gold/95 backdrop-blur-md shadow-lg py-3"
           : "bg-transparent py-6"
       }`}
     >
@@ -57,7 +57,7 @@ export default function Navigation() {
             }`}
           >
             <Image
-              src="/logo_golden.svg"
+              src="/logo.svg"
               alt="Green Acres Logo"
               fill
               className="object-contain"
@@ -65,10 +65,18 @@ export default function Navigation() {
             />
           </div>
           <div className="hidden sm:block">
-            <span className="text-white font-semibold text-lg tracking-tight">
+            <span
+              className={`font-semibold text-lg tracking-tight transition-colors ${
+                isScrolled ? "text-forest" : "text-white"
+              }`}
+            >
               Green Acres
             </span>
-            <span className="block text-gold text-xs tracking-widest uppercase">
+            <span
+              className={`block text-xs tracking-widest uppercase transition-colors ${
+                isScrolled ? "text-forest/80 font-semibold" : "text-gold"
+              }`}
+            >
               Premium Coffee
             </span>
           </div>
@@ -86,7 +94,11 @@ export default function Navigation() {
               <Link
                 key={link.label}
                 href={href}
-                className="text-white/80 hover:text-gold transition-colors text-sm font-medium tracking-wide uppercase"
+                className={`transition-colors text-sm font-semibold tracking-wide uppercase ${
+                  isScrolled
+                    ? "text-forest/80 hover:text-forest"
+                    : "text-white/80 hover:text-gold"
+                }`}
               >
                 {link.label}
               </Link>
@@ -99,10 +111,14 @@ export default function Navigation() {
               <div className="relative ml-4">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 text-gold rounded-full hover:bg-gold/20 transition-all"
+                  className={`flex items-center gap-2 px-4 py-2 border rounded-full transition-all ${
+                    isScrolled
+                      ? "bg-forest/10 border-forest/30 text-forest hover:bg-forest/20"
+                      : "bg-gold/10 border-gold/30 text-gold hover:bg-gold/20"
+                  }`}
                 >
                   <User className="w-4 h-4" />
-                  <span className="text-sm font-medium max-w-[100px] truncate">
+                  <span className="text-sm font-semibold max-w-[100px] truncate">
                     {user.companyName || user.email}
                   </span>
                 </button>
@@ -144,13 +160,21 @@ export default function Navigation() {
               <div className="flex items-center gap-3 ml-4">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-white/80 hover:text-gold transition-colors text-sm font-medium"
+                  className={`px-4 py-2 transition-colors text-sm font-bold ${
+                    isScrolled
+                      ? "text-forest hover:text-forest/70"
+                      : "text-white/90 hover:text-gold"
+                  }`}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-5 py-2.5 bg-gold text-forest font-semibold text-sm rounded-full hover:bg-gold-light transition-all hover:scale-105 shadow-lg"
+                  className={`px-5 py-2.5 font-bold text-sm rounded-full transition-all hover:scale-105 shadow-lg ${
+                    isScrolled
+                      ? "bg-forest text-gold hover:bg-forest/90"
+                      : "bg-gold text-forest hover:bg-gold-light"
+                  }`}
                 >
                   Register
                 </Link>
@@ -161,7 +185,9 @@ export default function Navigation() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden text-white p-2"
+          className={`md:hidden p-2 transition-colors ${
+            isScrolled ? "text-forest" : "text-white"
+          }`}
           aria-label="Toggle menu"
         >
           <div className="w-6 h-5 flex flex-col justify-between">

@@ -241,7 +241,7 @@ export default function Footer() {
           <div className="flex items-center gap-4">
             <div className="relative w-20 h-20 md:w-24 md:h-24">
               <Image
-                src="/logo_golden.svg"
+                src="/logo.svg"
                 alt="Green Acres Logo"
                 fill
                 className="object-contain"
