@@ -61,6 +61,7 @@ export default function CoffeeScrollShowcase() {
   const isAnimatingRef = useRef(false);
   const isPinnedRef = useRef(false);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const touchStartYRef = useRef(0);
 
   const { user, loading } = useAuth();
   const [coffeeIds, setCoffeeIds] = useState<Record<string, string>>({});
@@ -159,6 +160,9 @@ export default function CoffeeScrollShowcase() {
 
       // ── Jute bag image transition ──
       if (bagContainerRef.current) {
+        const isMobile = window.innerWidth < 768;
+        const enterOffset = isMobile ? 60 : 120;
+        const exitOffset = isMobile ? -30 : -60;
         const bags = bagContainerRef.current.querySelectorAll(".jute-bag-img");
         bags.forEach((bag, i) => {
           const el = bag as HTMLElement;
@@ -166,25 +170,25 @@ export default function CoffeeScrollShowcase() {
             gsap.fromTo(
               el,
               {
-                y: direction * 120,
+                y: direction * enterOffset,
                 opacity: 0,
-                scale: 0.85,
+                scale: 0.9,
               },
               {
                 y: 0,
                 opacity: 1,
                 scale: 1,
-                duration: 0.9,
+                duration: isMobile ? 0.6 : 0.9,
                 ease: "power3.out",
                 display: "block",
               },
             );
           } else {
             gsap.to(el, {
-              y: direction * -60,
+              y: direction * exitOffset,
               opacity: 0,
-              scale: 0.9,
-              duration: 0.5,
+              scale: 0.95,
+              duration: isMobile ? 0.35 : 0.5,
               ease: "power2.in",
               onComplete: () => {
                 gsap.set(el, { display: "none" });
@@ -196,6 +200,7 @@ export default function CoffeeScrollShowcase() {
 
       // ── Staggered content entrance ──
       if (detailsRef.current) {
+        const isMobile = window.innerWidth < 768;
         const panels = detailsRef.current.querySelectorAll(".detail-panel");
         panels.forEach((panel, i) => {
           const el = panel as HTMLElement;
@@ -205,19 +210,19 @@ export default function CoffeeScrollShowcase() {
             const children = el.querySelectorAll(".stagger-item");
             tl.fromTo(
               children,
-              { y: 40, opacity: 0 },
+              { y: isMobile ? 20 : 40, opacity: 0 },
               {
                 y: 0,
                 opacity: 1,
-                duration: 0.6,
-                stagger: 0.08,
+                duration: isMobile ? 0.4 : 0.6,
+                stagger: isMobile ? 0.04 : 0.08,
                 ease: "power3.out",
               },
             );
           } else {
             gsap.to(el, {
               opacity: 0,
-              duration: 0.3,
+              duration: isMobile ? 0.2 : 0.3,
               onComplete: () => {
                 el.style.display = "none";
                 gsap.set(el, { opacity: 1 });
@@ -363,11 +368,67 @@ export default function CoffeeScrollShowcase() {
       }, 700);
     };
 
-    // Attach to window to catch all wheel events while pinned
+    // ── Touch event handlers for mobile swipe ──
+    const SWIPE_THRESHOLD = 40; // minimum px to register a swipe
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!isPinnedRef.current) return;
+      touchStartYRef.current = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isPinnedRef.current) return;
+      const currentIdx = activeIndexRef.current;
+      const deltaY = touchStartYRef.current - e.touches[0].clientY;
+      const goingDown = deltaY > 0;
+      const goingUp = deltaY < 0;
+
+      // At boundaries: let native scroll take over
+      if (goingUp && currentIdx === 0) return;
+      if (goingDown && currentIdx === total - 1) return;
+
+      // Only prevent default when we're handling the swipe mid-carousel
+      e.preventDefault();
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isPinnedRef.current || isAnimatingRef.current) return;
+
+      const deltaY = touchStartYRef.current - e.changedTouches[0].clientY;
+      if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
+
+      const currentIdx = activeIndexRef.current;
+      const goingDown = deltaY > 0;
+      const goingUp = deltaY < 0;
+
+      // At boundaries: let native scroll take over
+      if (goingUp && currentIdx === 0) return;
+      if (goingDown && currentIdx === total - 1) return;
+
+      isAnimatingRef.current = true;
+
+      const nextIdx = goingDown
+        ? Math.min(currentIdx + 1, total - 1)
+        : Math.max(currentIdx - 1, 0);
+
+      goToSlide(nextIdx);
+
+      setTimeout(() => {
+        isAnimatingRef.current = false;
+      }, 600);
+    };
+
+    // Attach to window to catch all events while pinned
     window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
       ctx.revert();
 
       // Ensure Lenis is restarted on cleanup
