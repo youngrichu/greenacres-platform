@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@greenacres/auth";
 import { User, LogOut, LayoutDashboard } from "lucide-react";
@@ -47,9 +48,21 @@ export default function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center transition-transform group-hover:scale-110">
-            <span className="text-forest font-bold text-lg">GA</span>
+        <Link href="/" className="flex items-center gap-3 md:gap-4 group">
+          <div
+            className={`relative transition-all duration-500 group-hover:scale-105 shrink-0 ${
+              isScrolled
+                ? "w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14"
+                : "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
+            }`}
+          >
+            <Image
+              src="/logo_golden.svg"
+              alt="Green Acres Logo"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="hidden sm:block">
             <span className="text-white font-semibold text-lg tracking-tight">
