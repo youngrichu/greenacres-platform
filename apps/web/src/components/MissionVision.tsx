@@ -27,10 +27,7 @@ const VideoRef = ({
     playsInline
     className="absolute inset-0 w-full h-full object-cover"
   >
-    <source
-      src="https://greenacres-coffee.b-cdn.net/assets/videos/green-beans-machine.mp4"
-      type="video/mp4"
-    />
+    <source src="/assets/videos/green-beans-machine.mp4" type="video/mp4" />
   </video>
 );
 

@@ -87,10 +87,7 @@ export default function Statistics() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source
-          src="https://greenacres-coffee.b-cdn.net/assets/videos/coffe_for_numbers.mp4"
-          type="video/mp4"
-        />
+        <source src="/assets/videos/coffe_for_numbers.mp4" type="video/mp4" />
       </video>
 
       {/* Cinematic overlay layers */}

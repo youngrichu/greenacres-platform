@@ -207,7 +207,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef1}
                 src="/assets/heritage/coffee-ceremony-1.png"
                 alt="Traditional Ethiopian Coffee Ceremony"
-                videoSrc="https://greenacres-coffee.b-cdn.net/assets/videos/roasting.mp4"
+                videoSrc="/assets/videos/roasting.mp4"
                 className="aspect-[3/4]"
               />
               {/* Landscape → coffee_highland.mp4 */}
@@ -215,7 +215,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef2}
                 src="/assets/heritage/coffee-origin-landscape.png"
                 alt="Ethiopian Highlands Landscape"
-                videoSrc="https://greenacres-coffee.b-cdn.net/assets/videos/coffee_highland.mp4"
+                videoSrc="/assets/videos/coffee_highland.mp4"
                 className="aspect-square"
               />
             </div>
@@ -227,7 +227,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef3}
                 src="/assets/heritage/coffee-beans-roasting.png"
                 alt="Traditional Roasting"
-                videoSrc="https://greenacres-coffee.b-cdn.net/assets/videos/coffee_roasting.mp4"
+                videoSrc="/assets/videos/coffee_roasting.mp4"
                 className="aspect-square"
               />
               {/* Hands → coffee_hand.mp4 */}
@@ -235,7 +235,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef4}
                 src="/assets/heritage/cultural-hands.png"
                 alt="Coffee harvesting by hand"
-                videoSrc="https://greenacres-coffee.b-cdn.net/assets/videos/coffee_hand.mp4"
+                videoSrc="/assets/videos/coffee_hand.mp4"
                 className="aspect-[3/4]"
               />
             </div>

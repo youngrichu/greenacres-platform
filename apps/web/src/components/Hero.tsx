@@ -100,10 +100,7 @@ export default function Hero() {
           playsInline
           className="w-full h-[120%] object-cover -mt-[10%]" // Made taller for parallax movement
         >
-          <source
-            src="https://greenacres-coffee.b-cdn.net/assets/videos/drone-footage.mp4"
-            type="video/mp4"
-          />
+          <source src="/assets/videos/drone-footage.mp4" type="video/mp4" />
         </video>
         {/* Layer 1: cinematic tint */}
         <div className="absolute inset-0 bg-black/40" />
