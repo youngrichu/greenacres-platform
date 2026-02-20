@@ -88,7 +88,7 @@ export default function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="sticky top-0 z-0 h-screen w-full flex items-center overflow-hidden bg-forest-dark"
+      className="sticky top-0 z-0 h-[100dvh] w-full flex items-center overflow-hidden bg-forest-dark"
     >
       {/* Background Video with Parallax */}
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -111,7 +111,7 @@ export default function Hero() {
       {/* Content — Centered Editorial Layout */}
       <div
         ref={contentRef}
-        className="relative z-10 w-full px-8 md:px-16 max-w-7xl mx-auto flex flex-col justify-center pt-24 md:pt-32 lg:pt-40 h-full"
+        className="relative z-10 w-full px-6 md:px-16 max-w-7xl mx-auto flex flex-col justify-center pt-8 sm:pt-16 md:pt-32 lg:pt-40 h-full"
       >
         <div className="overflow-hidden mb-6">
           <p className="hero-line text-sm md:text-base uppercase tracking-[0.3em] text-white/70 font-light border-l-2 border-gold pl-4">
@@ -121,7 +121,7 @@ export default function Hero() {
 
         <h1
           ref={titleRef}
-          className="text-6xl md:text-8xl lg:text-[7rem] font-bold text-white mb-10 leading-[0.9] tracking-tight"
+          className="text-5xl sm:text-6xl md:text-8xl lg:text-[7rem] font-bold text-white mb-6 md:mb-10 leading-[1.05] sm:leading-[0.9] tracking-tight"
           style={{ fontFamily: "var(--font-playfair)" }}
         >
           <div className="overflow-hidden">
@@ -142,11 +142,11 @@ export default function Hero() {
             href="#coffee"
             className="hero-line inline-flex items-center gap-4 text-white hover:text-gold transition-colors duration-300 group"
           >
-            <span className="text-xl md:text-2xl font-light border-b border-white/30 hover:border-gold pb-1 transition-all">
+            <span className="text-lg md:text-2xl font-light border-b border-white/30 hover:border-gold pb-1 transition-all">
               Explore Collections
             </span>
-            <div className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-gold group-hover:border-gold transition-all duration-300">
-              <ArrowRight className="w-5 h-5 group-hover:text-forest-dark transition-colors" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-gold group-hover:border-gold transition-all duration-300">
+              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:text-forest-dark transition-colors" />
             </div>
           </Link>
         </div>
@@ -154,7 +154,7 @@ export default function Hero() {
 
       {/* Scroll Indicator */}
       <div
-        className="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer"
+        className="scroll-indicator absolute bottom-4 md:bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer"
         style={{ opacity: 0 }}
         onClick={() => {
           const intro = document.getElementById("introduction");
