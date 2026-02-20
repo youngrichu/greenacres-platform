@@ -161,37 +161,40 @@ export default function CoffeeScrollShowcase() {
       // ── Jute bag image transition ──
       if (bagContainerRef.current) {
         const isMobile = window.innerWidth < 768;
-        const enterOffset = isMobile ? 60 : 120;
-        const exitOffset = isMobile ? -30 : -60;
+        const enterOffset = isMobile ? 40 : 100;
+        const exitOffset = isMobile ? -20 : -50;
         const bags = bagContainerRef.current.querySelectorAll(".jute-bag-img");
+
+        // Kill all competing bag tweens first
+        bags.forEach((bag) => gsap.killTweensOf(bag));
+
         bags.forEach((bag, i) => {
           const el = bag as HTMLElement;
           if (i === index) {
+            // Make visible immediately, then animate in
+            gsap.set(el, { visibility: "visible", zIndex: 2 });
             gsap.fromTo(
               el,
               {
                 y: direction * enterOffset,
                 opacity: 0,
-                scale: 0.9,
               },
               {
                 y: 0,
                 opacity: 1,
-                scale: 1,
-                duration: isMobile ? 0.6 : 0.9,
-                ease: "power3.out",
-                display: "block",
+                duration: isMobile ? 0.5 : 0.8,
+                ease: "power2.out",
               },
             );
-          } else {
+          } else if (el.style.visibility !== "hidden") {
+            // Only animate out elements that are currently visible
             gsap.to(el, {
               y: direction * exitOffset,
               opacity: 0,
-              scale: 0.95,
-              duration: isMobile ? 0.35 : 0.5,
+              duration: isMobile ? 0.3 : 0.45,
               ease: "power2.in",
               onComplete: () => {
-                gsap.set(el, { display: "none" });
+                gsap.set(el, { visibility: "hidden", zIndex: 1, y: 0 });
               },
             });
           }
@@ -202,30 +205,38 @@ export default function CoffeeScrollShowcase() {
       if (detailsRef.current) {
         const isMobile = window.innerWidth < 768;
         const panels = detailsRef.current.querySelectorAll(".detail-panel");
+
+        // Kill competing panel tweens
+        panels.forEach((panel) => {
+          gsap.killTweensOf(panel);
+          const children = panel.querySelectorAll(".stagger-item");
+          children.forEach((child) => gsap.killTweensOf(child));
+        });
+
         panels.forEach((panel, i) => {
           const el = panel as HTMLElement;
           if (i === index) {
+            gsap.set(el, { visibility: "visible", opacity: 1 });
             el.style.display = "flex";
-            const tl = gsap.timeline();
             const children = el.querySelectorAll(".stagger-item");
-            tl.fromTo(
+            gsap.fromTo(
               children,
-              { y: isMobile ? 20 : 40, opacity: 0 },
+              { y: isMobile ? 15 : 30, opacity: 0 },
               {
                 y: 0,
                 opacity: 1,
-                duration: isMobile ? 0.4 : 0.6,
-                stagger: isMobile ? 0.04 : 0.08,
-                ease: "power3.out",
+                duration: isMobile ? 0.35 : 0.5,
+                stagger: isMobile ? 0.03 : 0.06,
+                ease: "power2.out",
               },
             );
-          } else {
+          } else if (el.style.visibility !== "hidden") {
             gsap.to(el, {
               opacity: 0,
-              duration: isMobile ? 0.2 : 0.3,
+              duration: isMobile ? 0.15 : 0.25,
               onComplete: () => {
                 el.style.display = "none";
-                gsap.set(el, { opacity: 1 });
+                gsap.set(el, { visibility: "hidden", opacity: 1 });
               },
             });
           }
@@ -549,8 +560,10 @@ export default function CoffeeScrollShowcase() {
                   key={coffee.name}
                   className="jute-bag-img absolute inset-0"
                   style={{
-                    display: i === 0 ? "block" : "none",
+                    visibility: i === 0 ? "visible" : "hidden",
                     opacity: i === 0 ? 1 : 0,
+                    willChange: "transform, opacity",
+                    zIndex: i === 0 ? 2 : 1,
                   }}
                 >
                   <Image
