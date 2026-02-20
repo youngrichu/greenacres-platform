@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Eye, Target, Handshake, Award, Truck } from "lucide-react";
 import Image from "next/image";
+import { CldImage } from "next-cloudinary";
 import { cn } from "@/lib/utils";
 import { getCldVideoUrl } from "next-cloudinary";
 import {
@@ -193,8 +194,8 @@ export default function MissionVision() {
           </div>
           <div className="order-1 md:order-2 relative h-[300px] md:h-[400px] rounded-[3rem] overflow-hidden shadow-2xl mv-image-reveal rotate-3 hover:rotate-0 transition-transform duration-700">
             <div className="absolute inset-0 bg-forest/10 mix-blend-multiply z-10" />
-            <Image
-              src="/assets/heritage/coffee-vision-highlands.png"
+            <CldImage
+              src="coffee/images/heritage/coffee-vision-highlands"
               alt="Ethiopian Highlands"
               fill
               className="object-cover"
@@ -261,8 +262,8 @@ export default function MissionVision() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           <div className="mv-fade">
             <div className="aspect-[4/5] relative rounded-[3rem] overflow-hidden shadow-xl -rotate-3 hover:rotate-0 transition-transform duration-700">
-              <Image
-                src="/assets/heritage/cultural-hands.png"
+              <CldImage
+                src="coffee/images/heritage/cultural-hands"
                 alt="Harvesting Coffee"
                 fill
                 className="object-cover"

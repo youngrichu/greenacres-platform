@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import Image from "next/image";
+import { CldImage } from "next-cloudinary";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -566,7 +567,7 @@ export default function CoffeeScrollShowcase() {
                     zIndex: i === 0 ? 2 : 1,
                   }}
                 >
-                  <Image
+                  <CldImage
                     src={coffee.juteBagImage}
                     alt={`${coffee.name} jute bag`}
                     fill

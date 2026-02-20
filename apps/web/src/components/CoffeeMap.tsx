@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import { CldImage } from "next-cloudinary";
 import gsap from "gsap";
 import { ArrowRight, MapPin } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -233,8 +234,8 @@ export default function CoffeeMap() {
               }}
             >
               {/* Map Image */}
-              <Image
-                src="/images/ethiopia-map-original.png"
+              <CldImage
+                src="coffee/images/ethiopia-map-original"
                 alt="Map of Ethiopian coffee growing regions"
                 fill
                 className="object-cover"
