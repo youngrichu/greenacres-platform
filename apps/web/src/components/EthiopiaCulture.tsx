@@ -4,6 +4,7 @@ import { useEffect, useRef, forwardRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import { getCldVideoUrl } from "next-cloudinary";
 import {
   CoffeeLeafImage,
   CoffeeBeansScatteredImage,
@@ -207,7 +208,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef1}
                 src="/assets/heritage/coffee-ceremony-1.png"
                 alt="Traditional Ethiopian Coffee Ceremony"
-                videoSrc="/assets/videos/roasting.mp4"
+                videoSrc={getCldVideoUrl({ src: "roasting__xxmigh" })}
                 className="aspect-[3/4]"
               />
               {/* Landscape → coffee_highland.mp4 */}
@@ -215,7 +216,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef2}
                 src="/assets/heritage/coffee-origin-landscape.png"
                 alt="Ethiopian Highlands Landscape"
-                videoSrc="/assets/videos/coffee_highland.mp4"
+                videoSrc={getCldVideoUrl({ src: "coffee_highland_t3mjws" })}
                 className="aspect-square"
               />
             </div>
@@ -227,7 +228,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef3}
                 src="/assets/heritage/coffee-beans-roasting.png"
                 alt="Traditional Roasting"
-                videoSrc="/assets/videos/coffee_roasting.mp4"
+                videoSrc={getCldVideoUrl({ src: "coffee_roasting_p5nq34" })}
                 className="aspect-square"
               />
               {/* Hands → coffee_hand.mp4 */}
@@ -235,7 +236,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef4}
                 src="/assets/heritage/cultural-hands.png"
                 alt="Coffee harvesting by hand"
-                videoSrc="/assets/videos/coffee_hand.mp4"
+                videoSrc={getCldVideoUrl({ src: "coffee_hand_ebalud" })}
                 className="aspect-[3/4]"
               />
             </div>

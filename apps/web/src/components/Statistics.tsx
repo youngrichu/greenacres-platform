@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import { getCldVideoUrl } from "next-cloudinary";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -87,7 +88,10 @@ export default function Statistics() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src="/assets/videos/coffe_for_numbers.mp4" type="video/mp4" />
+        <source
+          src={getCldVideoUrl({ src: "coffe_for_numbers_irilp8" })}
+          type="video/mp4"
+        />
       </video>
 
       {/* Cinematic overlay layers */}

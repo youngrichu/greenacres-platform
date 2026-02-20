@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Eye, Target, Handshake, Award, Truck } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getCldVideoUrl } from "next-cloudinary";
 import {
   CulturalPatternImage,
   CoffeeBranchImage,
@@ -27,7 +28,10 @@ const VideoRef = ({
     playsInline
     className="absolute inset-0 w-full h-full object-cover"
   >
-    <source src="/assets/videos/green-beans-machine.mp4" type="video/mp4" />
+    <source
+      src={getCldVideoUrl({ src: "green-beans-machine_g8ptru" })}
+      type="video/mp4"
+    />
   </video>
 );
 

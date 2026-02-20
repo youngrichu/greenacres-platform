@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { getCldVideoUrl } from "next-cloudinary";
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -100,7 +101,10 @@ export default function Hero() {
           playsInline
           className="w-full h-[120%] object-cover -mt-[10%]" // Made taller for parallax movement
         >
-          <source src="/assets/videos/drone-footage.mp4" type="video/mp4" />
+          <source
+            src={getCldVideoUrl({ src: "drone-footage_q8pwet" })}
+            type="video/mp4"
+          />
         </video>
         {/* Layer 1: cinematic tint */}
         <div className="absolute inset-0 bg-black/40" />
