@@ -1,30 +1,28 @@
-
 /**
  * Greenacres Premium Email Template
  * Theme: Dark Forest Green, Cream, Gold
  */
 
-
 const COLORS = {
-    background: '#05110A', // Deepest Green/Black
-    container: '#0B1C13', // Rich Forest Green
-    text: '#EAEAEA', // Off-white/Silver (crisper than cream)
-    muted: '#A0A0A0', // Muted text
-    gold: '#D4AF37', // Pure Gold
-    link: '#E5C158',
-    buttonText: '#05110A',
+  background: "#05110A", // Deepest Green/Black
+  container: "#0B1C13", // Rich Forest Green
+  text: "#EAEAEA", // Off-white/Silver (crisper than cream)
+  muted: "#A0A0A0", // Muted text
+  gold: "#D4AF37", // Pure Gold
+  link: "#E5C158",
+  buttonText: "#05110A",
 };
 
 export function createFormattedEmail(content: string, title?: string): string {
-    const year = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
-    return `
+  return `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title || 'Greenacres Coffee'}</title>
+    <title>${title || "Greenacres Coffee"}</title>
     <!-- Try to load a nice font, fallback gracefully -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -63,7 +61,7 @@ export function createFormattedEmail(content: string, title?: string): string {
         <div class="webkit">
             <div class="header-bar"></div>
             <div class="logo-container">
-                <span class="logo">Greenacres</span>
+                <img src="https://greenacrescoffee.com/logo_golden.svg" alt="Greenacres Logo" style="height: 60px; width: auto; object-fit: contain;" />
             </div>
             
             <div class="content">
