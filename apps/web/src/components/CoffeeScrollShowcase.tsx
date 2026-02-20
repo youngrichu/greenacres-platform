@@ -531,7 +531,7 @@ export default function CoffeeScrollShowcase() {
         </div>
 
         {/* ═══ COUNTER ═══ */}
-        <div className="absolute bottom-6 left-4 md:bottom-8 md:left-10 z-30 flex items-end gap-1">
+        <div className="absolute bottom-[18%] left-4 md:bottom-8 md:left-10 z-30 flex items-end gap-1">
           <span
             ref={counterRef}
             className="text-4xl md:text-7xl font-bold text-white/90 leading-none"
@@ -545,15 +545,15 @@ export default function CoffeeScrollShowcase() {
         </div>
 
         {/* ═══ MAIN CONTENT GRID ═══ */}
-        <div className="relative z-10 h-full flex flex-col md:flex-row pt-[4dvh] pb-[4dvh] md:pt-0 md:pb-0">
+        <div className="relative z-10 h-full flex flex-col md:flex-row">
           {/* TOP/LEFT: Jute Bag Image */}
-          <div className="w-full h-[48%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4">
+          <div className="w-full h-[42%] md:w-1/2 md:h-full flex items-end md:items-center justify-center relative px-8 md:px-4 pt-2 md:pt-0">
             {/* Shadow layer */}
-            <div className="absolute bottom-[5%] left-1/2 -translate-x-1/2 w-[60%] md:w-[45%] h-6 md:h-10 bg-black/25 rounded-[50%] blur-xl md:blur-2xl" />
+            <div className="absolute bottom-[2%] md:bottom-[12%] left-1/2 -translate-x-1/2 w-[50%] md:w-[45%] h-4 md:h-10 bg-black/25 rounded-[50%] blur-xl md:blur-2xl" />
 
             <div
               ref={bagContainerRef}
-              className="relative h-[95%] md:h-[80%] aspect-square"
+              className="relative h-full max-h-[92%] md:h-[80%] aspect-square"
             >
               {coffees.map((coffee, i) => (
                 <div
@@ -581,7 +581,7 @@ export default function CoffeeScrollShowcase() {
           </div>
 
           {/* BOTTOM/RIGHT: Product Details */}
-          <div className="w-full h-[52%] md:w-1/2 md:h-full flex items-center justify-center md:justify-start px-6 md:pl-16 md:pr-20 relative z-10">
+          <div className="w-full h-[58%] md:w-1/2 md:h-full flex items-start md:items-center justify-center md:justify-start px-6 md:pl-16 md:pr-20 pt-4 md:pt-0 pb-20 md:pb-0 relative z-10 overflow-y-auto">
             <div
               ref={detailsRef}
               className="relative w-full max-w-lg text-center md:text-left"
