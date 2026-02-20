@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
@@ -16,6 +16,7 @@ gsap.registerPlugin(ScrollTrigger);
 // HoverVideoCard
 // On mouseenter: video fades in and plays.
 // On mouseleave: video fades out, pauses, and rewinds to start.
+// forwardRef exposes the <video> element so parents can drive the intro sequence.
 // ---------------------------------------------------------------------------
 interface HoverVideoCardProps {
   src: string;
@@ -24,71 +25,69 @@ interface HoverVideoCardProps {
   className?: string;
 }
 
-function HoverVideoCard({
-  src,
-  alt,
-  videoSrc,
-  className = "",
-}: HoverVideoCardProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+const HoverVideoCard = forwardRef<HTMLVideoElement, HoverVideoCardProps>(
+  function HoverVideoCard({ src, alt, videoSrc, className = "" }, ref) {
+    const internalRef = useRef<HTMLVideoElement>(null);
+    const videoRef = (ref as React.RefObject<HTMLVideoElement>) ?? internalRef;
 
-  const handleMouseEnter = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.style.opacity = "1";
-    video.playbackRate = 0.5;
-    video.play().catch(() => {
-      // Autoplay blocked – silently ignore
-    });
-  };
+    const handleMouseEnter = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      video.style.opacity = "1";
+      video.playbackRate = 0.5;
+      video.play().catch(() => {
+        // Autoplay blocked – silently ignore
+      });
+    };
 
-  const handleMouseLeave = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.style.opacity = "0";
-    // Wait for the fade-out to finish before pausing / rewinding
-    setTimeout(() => {
-      video.pause();
-      video.currentTime = 0;
-    }, 500);
-  };
+    const handleMouseLeave = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      video.style.opacity = "0";
+      // Wait for the fade-out to finish before pausing / rewinding
+      setTimeout(() => {
+        video.pause();
+        video.currentTime = 0;
+      }, 500);
+    };
 
-  return (
-    <div
-      className={`rounded-2xl overflow-hidden relative group ${className}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Static image (always present) */}
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className="object-cover transition-transform duration-700 group-hover:scale-110"
-      />
-
-      {/* Video layer – crossfades over the image on hover */}
-      {videoSrc && (
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          muted
-          playsInline
-          loop
-          preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            opacity: 0,
-            transition: "opacity 500ms ease",
-          }}
+    return (
+      <div
+        className={`rounded-2xl overflow-hidden relative group ${className}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Static image (always present) */}
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
         />
-      )}
 
-      {/* Overlay tint */}
-      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none" />
-    </div>
-  );
-}
+        {/* Video layer – crossfades over the image on hover (or intro sequence) */}
+        {videoSrc && (
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            muted
+            playsInline
+            loop
+            preload="metadata"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{
+              opacity: 0,
+              transition: "opacity 500ms ease",
+            }}
+          />
+        )}
+
+        {/* Overlay tint */}
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors pointer-events-none" />
+      </div>
+    );
+  },
+);
 
 // ---------------------------------------------------------------------------
 // EthiopiaCulture
@@ -97,8 +96,15 @@ export default function EthiopiaCulture() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Refs for each card's <video> element — used by the intro sequence
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
+  const videoRef3 = useRef<HTMLVideoElement>(null);
+  const videoRef4 = useRef<HTMLVideoElement>(null);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // ── Fade-in animation for text/grid ──────────────────────────────────
       gsap.from(".culture-fade", {
         opacity: 0,
         y: 40,
@@ -107,6 +113,61 @@ export default function EthiopiaCulture() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top 60%",
+        },
+      });
+
+      // ── Intro video sequence ─────────────────────────────────────────────
+      // Fires once when the grid enters the viewport.
+      // Each card's video plays for ~2.5 s then fades back out, staggered.
+      const videos = [
+        videoRef1.current,
+        videoRef2.current,
+        videoRef3.current,
+        videoRef4.current,
+      ];
+
+      const PREVIEW_DURATION = 2.5; // seconds each video stays visible
+      const STAGGER = 0.6; // seconds between each card starting
+      const FADE = 0.5; // fade in/out duration (seconds)
+
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 55%",
+        once: true,
+        onEnter: () => {
+          videos.forEach((video, i) => {
+            if (!video) return;
+
+            const delay = i * STAGGER;
+
+            // Fade in + play
+            setTimeout(() => {
+              video.currentTime = 0;
+              video.playbackRate = 0.6;
+              video.play().catch(() => {});
+              gsap.to(video, {
+                opacity: 1,
+                duration: FADE,
+                ease: "power2.out",
+              });
+            }, delay * 1000);
+
+            // Fade out + pause
+            setTimeout(
+              () => {
+                gsap.to(video, {
+                  opacity: 0,
+                  duration: FADE,
+                  ease: "power2.in",
+                  onComplete: () => {
+                    video.pause();
+                    video.currentTime = 0;
+                  },
+                });
+              },
+              (delay + PREVIEW_DURATION) * 1000,
+            );
+          });
         },
       });
     }, sectionRef);
@@ -143,6 +204,7 @@ export default function EthiopiaCulture() {
             <div className="space-y-4">
               {/* Ceremony → roasting.mp4 */}
               <HoverVideoCard
+                ref={videoRef1}
                 src="/assets/heritage/coffee-ceremony-1.png"
                 alt="Traditional Ethiopian Coffee Ceremony"
                 videoSrc="/assets/videos/roasting.mp4"
@@ -150,6 +212,7 @@ export default function EthiopiaCulture() {
               />
               {/* Landscape → coffee_highland.mp4 */}
               <HoverVideoCard
+                ref={videoRef2}
                 src="/assets/heritage/coffee-origin-landscape.png"
                 alt="Ethiopian Highlands Landscape"
                 videoSrc="/assets/videos/coffee_highland.mp4"
@@ -161,6 +224,7 @@ export default function EthiopiaCulture() {
             <div className="pt-12 space-y-4">
               {/* Roasting beans → coffee_roasting.mp4 */}
               <HoverVideoCard
+                ref={videoRef3}
                 src="/assets/heritage/coffee-beans-roasting.png"
                 alt="Traditional Roasting"
                 videoSrc="/assets/videos/coffee_roasting.mp4"
@@ -168,6 +232,7 @@ export default function EthiopiaCulture() {
               />
               {/* Hands → coffee_hand.mp4 */}
               <HoverVideoCard
+                ref={videoRef4}
                 src="/assets/heritage/cultural-hands.png"
                 alt="Coffee harvesting by hand"
                 videoSrc="/assets/videos/coffee_hand.mp4"
