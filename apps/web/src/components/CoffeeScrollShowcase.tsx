@@ -459,7 +459,7 @@ export default function CoffeeScrollShowcase() {
   };
 
   return (
-    <div ref={wrapperRef}>
+    <div ref={wrapperRef} className="relative z-20 bg-cream">
       <section
         ref={sectionRef}
         id="coffee"
