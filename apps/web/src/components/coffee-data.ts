@@ -99,7 +99,7 @@ export const COFFEE_DATA: CoffeeType[] = [
     flavorImage: "/images/flavors/yirga-banko-notes.png",
   },
   {
-    name: "Yirgacheffe Wurae",
+    name: "Yirgacheffe Wurae (Halo Berti)",
     grade: "Grade 1",
     process: "Natural",
     notes: ["Tropical Fruit", "Winey", "Dried Fig"],
