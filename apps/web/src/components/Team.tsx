@@ -115,22 +115,25 @@ export default function Team() {
           </p>
         </div>
 
-        <div ref={teamRef} className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div
+          ref={teamRef}
+          className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6"
+        >
           {team.map((member, i) => (
             <div
               key={member.name}
-              className="team-card group relative bg-white/5 backdrop-blur-sm rounded-3xl p-6 border border-white/10 hover:border-gold/50 transition-all duration-500 hover:-translate-y-2 hover:bg-white/10"
+              className="team-card group relative bg-white/5 backdrop-blur-sm rounded-2xl md:rounded-3xl p-4 md:p-6 border border-white/10 hover:border-gold/50 transition-all duration-500 hover:-translate-y-2 hover:bg-white/10"
             >
-              <div className="aspect-square rounded-2xl bg-black/20 mb-6 overflow-hidden relative flex items-center justify-center">
-                <User className="w-16 h-16 text-white/20 group-hover:text-gold/80 transition-colors" />
+              <div className="aspect-square rounded-xl md:rounded-2xl bg-black/20 mb-3 md:mb-6 overflow-hidden relative flex items-center justify-center">
+                <User className="w-10 h-10 md:w-16 md:h-16 text-gold/60 md:text-white/20 md:group-hover:text-gold/80 transition-colors" />
               </div>
-              <h4 className="text-lg font-bold text-white group-hover:text-gold transition-colors duration-300">
+              <h4 className="text-sm md:text-lg font-bold text-white group-hover:text-gold transition-colors duration-300 leading-tight">
                 {member.name}
               </h4>
-              <p className="text-gold/80 text-xs font-semibold tracking-widest uppercase mb-4 mt-1">
+              <p className="text-gold/80 text-[10px] md:text-xs font-semibold tracking-wider md:tracking-widest uppercase mb-2 md:mb-4 mt-0.5 md:mt-1">
                 {member.role}
               </p>
-              <p className="text-white/60 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <p className="text-white/60 text-[11px] md:text-xs leading-relaxed opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                 {member.bio}
               </p>
             </div>
