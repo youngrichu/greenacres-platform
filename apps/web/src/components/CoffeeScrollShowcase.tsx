@@ -545,7 +545,7 @@ export default function CoffeeScrollShowcase() {
         </div>
 
         {/* ═══ MAIN CONTENT GRID ═══ */}
-        <div className="relative z-10 h-full flex flex-col md:flex-row">
+        <div className="relative z-10 h-full flex flex-col md:flex-row pt-[72px] md:pt-0">
           {/* TOP/LEFT: Jute Bag Image */}
           <div className="w-full h-[55%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4">
             {/* Shadow layer */}
@@ -710,7 +710,7 @@ export default function CoffeeScrollShowcase() {
         </div>
 
         {/* ═══ SECTION LABEL ═══ */}
-        <div className="absolute top-4 right-4 md:top-8 md:right-12 z-30">
+        <div className="absolute top-20 right-4 md:top-8 md:right-12 z-30">
           <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase text-forest/30">
             Our Collection
           </span>
