@@ -391,13 +391,13 @@ export default function CoffeeScrollShowcase() {
       <section
         ref={sectionRef}
         id="coffee"
-        className="relative w-full h-screen overflow-hidden"
+        className="relative z-20 w-full h-[100dvh] overflow-hidden bg-cream"
       >
         {/* ═══ SPLIT BACKGROUND ═══ */}
-        <div className="absolute inset-0 flex">
+        <div className="absolute inset-0 flex flex-col md:flex-row">
           <div
             ref={bgLeftRef}
-            className="w-1/2 h-full"
+            className="w-full h-[45%] md:w-1/2 md:h-full"
             style={{
               backgroundImage: buildMeshGradient(...coffees[0].gradientColors),
               backgroundSize: "100% 100%",
@@ -405,7 +405,7 @@ export default function CoffeeScrollShowcase() {
           />
           <div
             ref={bgRightRef}
-            className="w-1/2 h-full"
+            className="w-full h-[55%] md:w-1/2 md:h-full"
             style={{ backgroundColor: coffees[0].bgRight }}
           />
         </div>
@@ -413,7 +413,7 @@ export default function CoffeeScrollShowcase() {
         {/* ═══ FLAVOR BACKGROUND ON RIGHT PANEL ═══ */}
         <div
           ref={flavorBgRef}
-          className="absolute top-0 right-0 w-1/2 h-full overflow-hidden pointer-events-none z-[1]"
+          className="absolute bottom-0 md:top-0 right-0 w-full h-[55%] md:w-1/2 md:h-full overflow-hidden pointer-events-none z-[1]"
         >
           {coffees.map((coffee, i) => (
             <div
@@ -442,13 +442,13 @@ export default function CoffeeScrollShowcase() {
         {/* ═══ NAVIGATION DOTS ═══ */}
         <div
           ref={dotsRef}
-          className="absolute left-6 md:left-10 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3"
+          className="absolute left-4 top-1/2 -translate-y-1/2 md:left-10 md:top-1/2 md:-translate-y-1/2 z-30 flex flex-col gap-3"
         >
           {coffees.map((_, i) => (
             <button
               key={i}
               onClick={() => handleDotClick(i)}
-              className={`nav-dot w-2.5 h-2.5 rounded-full border-2 border-white/60 transition-all duration-300 cursor-pointer hover:scale-150 ${
+              className={`nav-dot w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border-2 border-white/60 transition-all duration-300 cursor-pointer hover:scale-150 ${
                 i === activeIndex
                   ? "bg-white scale-[1.4] opacity-100"
                   : "bg-white/30 opacity-40"
@@ -459,29 +459,29 @@ export default function CoffeeScrollShowcase() {
         </div>
 
         {/* ═══ COUNTER ═══ */}
-        <div className="absolute bottom-8 left-6 md:left-10 z-30 flex items-end gap-1">
+        <div className="absolute bottom-6 left-4 md:bottom-8 md:left-10 z-30 flex items-end gap-1">
           <span
             ref={counterRef}
-            className="text-5xl md:text-7xl font-bold text-white/90 leading-none"
+            className="text-4xl md:text-7xl font-bold text-white/90 leading-none"
             style={{ fontFamily: "var(--font-playfair)" }}
           >
             01
           </span>
-          <span className="text-white/40 text-lg md:text-xl font-light mb-1 md:mb-2">
+          <span className="text-white/40 text-sm md:text-xl font-light mb-1 md:mb-2">
             / {String(total).padStart(2, "0")}
           </span>
         </div>
 
         {/* ═══ MAIN CONTENT GRID ═══ */}
-        <div className="relative z-10 h-full flex">
-          {/* LEFT: Jute Bag Image */}
-          <div className="w-1/2 h-full flex items-center justify-center relative px-4">
+        <div className="relative z-10 h-full flex flex-col md:flex-row pt-[4dvh] pb-[4dvh] md:pt-0 md:pb-0">
+          {/* TOP/LEFT: Jute Bag Image */}
+          <div className="w-full h-[48%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4">
             {/* Shadow layer */}
-            <div className="absolute bottom-[12%] left-1/2 -translate-x-1/2 w-[45%] h-10 bg-black/25 rounded-[50%] blur-2xl" />
+            <div className="absolute bottom-[5%] left-1/2 -translate-x-1/2 w-[60%] md:w-[45%] h-6 md:h-10 bg-black/25 rounded-[50%] blur-xl md:blur-2xl" />
 
             <div
               ref={bagContainerRef}
-              className="relative h-[80%] aspect-square"
+              className="relative h-[95%] md:h-[80%] aspect-square"
             >
               {coffees.map((coffee, i) => (
                 <div
@@ -497,7 +497,7 @@ export default function CoffeeScrollShowcase() {
                     alt={`${coffee.name} jute bag`}
                     fill
                     className="object-contain drop-shadow-2xl"
-                    sizes="50vw"
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     priority={i === 0}
                     unoptimized
                   />
@@ -506,13 +506,16 @@ export default function CoffeeScrollShowcase() {
             </div>
           </div>
 
-          {/* RIGHT: Product Details */}
-          <div className="w-1/2 h-full flex items-center justify-start pl-8 md:pl-16 pr-8 md:pr-20 relative z-10">
-            <div ref={detailsRef} className="relative w-full max-w-lg">
+          {/* BOTTOM/RIGHT: Product Details */}
+          <div className="w-full h-[52%] md:w-1/2 md:h-full flex items-center justify-center md:justify-start px-6 md:pl-16 md:pr-20 relative z-10">
+            <div
+              ref={detailsRef}
+              className="relative w-full max-w-lg text-center md:text-left"
+            >
               {coffees.map((coffee, i) => (
                 <div
                   key={coffee.name}
-                  className="detail-panel flex-col gap-6"
+                  className="detail-panel flex-col items-center md:items-start gap-3 md:gap-6"
                   style={{
                     display: i === 0 ? "flex" : "none",
                   }}
@@ -520,7 +523,7 @@ export default function CoffeeScrollShowcase() {
                   {/* Process type */}
                   <div className="stagger-item">
                     <span
-                      className="text-xs font-semibold tracking-[0.3em] uppercase"
+                      className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase"
                       style={{ color: coffee.accentColor }}
                     >
                       {coffee.process} Process
@@ -529,7 +532,7 @@ export default function CoffeeScrollShowcase() {
 
                   {/* Coffee Name */}
                   <h2
-                    className="stagger-item text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05]"
+                    className="stagger-item text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] md:leading-[1.05]"
                     style={{
                       fontFamily: "var(--font-playfair)",
                       color: "#1a2e1a",
@@ -540,26 +543,26 @@ export default function CoffeeScrollShowcase() {
 
                   {/* Description */}
                   <p
-                    className="stagger-item text-base md:text-lg leading-relaxed max-w-md"
+                    className="stagger-item text-sm md:text-base lg:text-lg leading-snug md:leading-relaxed max-w-[95%] md:max-w-md mx-auto md:mx-0"
                     style={{ color: "#3d5c3d" }}
                   >
                     {coffee.description}
                   </p>
 
                   {/* Tasting Notes Grid */}
-                  <div className="stagger-item flex flex-col gap-3">
+                  <div className="stagger-item flex flex-col gap-2 md:gap-3 items-center md:items-start w-full">
                     <span
-                      className="text-xs font-semibold tracking-[0.2em] uppercase"
+                      className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase"
                       style={{ color: "#5a7a5a" }}
                     >
                       Tasting Notes
                     </span>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap justify-center md:justify-start gap-1.5 md:gap-2">
                       {coffee.notes.map((note) => (
                         <Badge
                           key={note}
                           variant="outline"
-                          className="border-[#2d4a2d]/30 bg-white/70 backdrop-blur-sm text-sm font-medium px-3 py-1.5"
+                          className="border-[#2d4a2d]/30 bg-white/70 backdrop-blur-sm text-xs md:text-sm font-medium px-2 py-0.5 md:px-3 md:py-1.5 shadow-sm"
                           style={{ color: "#1a2e1a" }}
                         >
                           {note}
@@ -569,28 +572,26 @@ export default function CoffeeScrollShowcase() {
                   </div>
 
                   {/* Grade */}
-                  <div className="stagger-item flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="text-xs font-semibold tracking-[0.2em] uppercase"
-                        style={{ color: "#5a7a5a" }}
-                      >
-                        Grade
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="bg-[#1a2e1a]/10 border border-[#1a2e1a]/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                        style={{ color: "#1a2e1a" }}
-                      >
-                        {coffee.grade}
-                      </Badge>
-                    </div>
+                  <div className="stagger-item flex items-center justify-center md:justify-start gap-3 w-full">
+                    <span
+                      className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase"
+                      style={{ color: "#5a7a5a" }}
+                    >
+                      Grade
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className="bg-[#1a2e1a]/10 border border-[#1a2e1a]/20 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider"
+                      style={{ color: "#1a2e1a" }}
+                    >
+                      {coffee.grade}
+                    </Badge>
                   </div>
 
                   {/* CTA */}
-                  <div className="stagger-item pt-2">
+                  <div className="stagger-item pt-1 md:pt-2 w-full flex justify-center md:justify-start">
                     {loading ? (
-                      <div className="h-12 w-40 bg-forest/10 rounded-full animate-pulse" />
+                      <div className="h-10 md:h-12 w-32 md:w-40 bg-forest/10 rounded-full animate-pulse" />
                     ) : user ? (
                       <Link
                         href={
@@ -601,27 +602,27 @@ export default function CoffeeScrollShowcase() {
                       >
                         <Button
                           size="lg"
-                          className="h-12 px-8 bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
+                          className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
                         >
                           View In Portal
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                         </Button>
                       </Link>
                     ) : coffeeIds[coffee.name] ? (
                       <Link href={`/catalog/${coffeeIds[coffee.name]}`}>
                         <Button
                           size="lg"
-                          className="h-12 px-8 bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
+                          className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
                         >
                           View Details
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
                         </Button>
                       </Link>
                     ) : (
                       <Button
                         size="lg"
                         disabled
-                        className="h-12 px-8 bg-forest/20 text-forest/40 font-semibold rounded-full cursor-not-allowed gap-2"
+                        className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest/20 text-forest/40 font-semibold rounded-full cursor-not-allowed gap-2"
                       >
                         Coming Soon
                         <Lock className="w-3 h-3" />
@@ -635,8 +636,8 @@ export default function CoffeeScrollShowcase() {
         </div>
 
         {/* ═══ SECTION LABEL ═══ */}
-        <div className="absolute top-8 right-8 md:right-12 z-30">
-          <span className="text-xs font-semibold tracking-[0.3em] uppercase text-forest/30">
+        <div className="absolute top-4 right-4 md:top-8 md:right-12 z-30">
+          <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase text-forest/30">
             Our Collection
           </span>
         </div>
