@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import { CldImage } from "next-cloudinary";
+import { CldImage, getCldImageUrl } from "next-cloudinary";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -95,8 +95,8 @@ export default function CoffeeScrollShowcase() {
   // Preload all images
   useEffect(() => {
     const allImages = [
-      ...coffees.map((c) => c.juteBagImage),
-      ...coffees.map((c) => c.flavorImage),
+      ...coffees.map((c) => getCldImageUrl({ src: c.juteBagImage })),
+      ...coffees.map((c) => getCldImageUrl({ src: c.flavorImage })),
     ];
     preloadImages(allImages).then(() => {
       setImagesLoaded(true);
@@ -500,20 +500,23 @@ export default function CoffeeScrollShowcase() {
           ref={flavorBgRef}
           className="absolute bottom-0 md:top-0 right-0 w-full h-[50%] md:w-1/2 md:h-full overflow-hidden pointer-events-none z-[1]"
         >
-          {coffees.map((coffee, i) => (
-            <div
-              key={coffee.name}
-              className="flavor-bg-img absolute w-full h-[120%] -top-[10%] left-0"
-              style={{
-                opacity: 0,
-                backgroundImage: `url(${coffee.flavorImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                mixBlendMode: "multiply",
-                transform: "scale(1)",
-              }}
-            />
-          ))}
+          {coffees.map((coffee, i) => {
+            const flavorImageUrl = getCldImageUrl({ src: coffee.flavorImage });
+            return (
+              <div
+                key={coffee.name}
+                className="flavor-bg-img absolute w-full h-[120%] -top-[10%] left-0"
+                style={{
+                  opacity: 0,
+                  backgroundImage: `url(${flavorImageUrl})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  mixBlendMode: "multiply",
+                  transform: "scale(1)",
+                }}
+              />
+            );
+          })}
         </div>
 
         {/* ═══ GRAIN TEXTURE OVERLAY ═══ */}
