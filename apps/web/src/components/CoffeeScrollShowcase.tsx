@@ -344,6 +344,18 @@ export default function CoffeeScrollShowcase() {
 
       scrollTriggerRef.current = st;
 
+      // True parallax for the background images
+      gsap.to(".flavor-bg-img", {
+        yPercent: 20,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: `+=${total * 100}vh`,
+          scrub: true,
+        },
+      });
+
       // Refresh downstream triggers after a frame
       requestAnimationFrame(() => {
         ScrollTrigger.refresh();
@@ -491,7 +503,7 @@ export default function CoffeeScrollShowcase() {
           {coffees.map((coffee, i) => (
             <div
               key={coffee.name}
-              className="flavor-bg-img absolute inset-0"
+              className="flavor-bg-img absolute w-full h-[120%] -top-[10%] left-0"
               style={{
                 opacity: 0,
                 backgroundImage: `url(${coffee.flavorImage})`,
