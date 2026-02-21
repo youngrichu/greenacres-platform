@@ -5,12 +5,31 @@ import gsap from "gsap";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { getCldVideoUrl } from "next-cloudinary";
+import { useLenis } from "@/components/providers/smooth-scroller";
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const lenis = useLenis();
+
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        if (lenis) {
+          lenis.scrollTo(target as HTMLElement, { offset: 0 });
+        } else {
+          target.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -144,6 +163,7 @@ export default function Hero() {
         <div className="overflow-hidden">
           <Link
             href="#coffee"
+            onClick={(e) => handleNavClick(e, "#coffee")}
             className="hero-line inline-flex items-center gap-4 text-white hover:text-gold transition-colors duration-300 group"
           >
             <span className="text-lg md:text-2xl font-light border-b border-white/30 hover:border-gold pb-1 transition-all">
@@ -162,7 +182,10 @@ export default function Hero() {
         style={{ opacity: 0 }}
         onClick={() => {
           const intro = document.getElementById("introduction");
-          if (intro) intro.scrollIntoView({ behavior: "smooth" });
+          if (intro) {
+            if (lenis) lenis.scrollTo(intro, { offset: 0 });
+            else intro.scrollIntoView({ behavior: "smooth" });
+          }
         }}
       >
         <span className="text-[10px] uppercase tracking-[0.3em] text-white/50 font-light">

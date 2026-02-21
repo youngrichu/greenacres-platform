@@ -5,14 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@greenacres/auth";
+import { useLenis } from "@/components/providers/smooth-scroller";
 import { User, LogOut, LayoutDashboard } from "lucide-react";
 
 const navLinks = [
   { href: "#hero", label: "Home" },
+  { href: "#heritage", label: "Heritage" },
   { href: "#about", label: "About" },
   { href: "#regions", label: "Regions" },
   { href: "#coffee", label: "Our Coffee" },
-  { href: "#heritage", label: "Heritage" },
   { href: "/how-to-order", label: "How to Order", isPage: true },
   { href: "#contact", label: "Contact" },
 ];
@@ -23,6 +24,34 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const lenis = useLenis();
+
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    if (href.startsWith("#") && pathname === "/") {
+      e.preventDefault();
+
+      if (href === "#hero") {
+        if (lenis) {
+          lenis.scrollTo(0, { offset: 0 });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } else {
+        const target = document.querySelector(href);
+        if (target) {
+          if (lenis) {
+            lenis.scrollTo(target as HTMLElement, { offset: 0 });
+          } else {
+            target.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      }
+      setIsMobileMenuOpen(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,7 +77,18 @@ export default function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 md:gap-4 group">
+        <Link
+          href="/"
+          onClick={(e) => {
+            if (pathname === "/") {
+              e.preventDefault();
+              if (lenis) lenis.scrollTo(0, { offset: 0 });
+              else window.scrollTo({ top: 0, behavior: "smooth" });
+              setIsMobileMenuOpen(false);
+            }
+          }}
+          className="flex items-center gap-3 md:gap-4 group"
+        >
           <div
             className={`relative transition-all duration-500 group-hover:scale-105 shrink-0 ${
               isScrolled
@@ -86,6 +126,7 @@ export default function Navigation() {
               <Link
                 key={link.label}
                 href={href}
+                onClick={(e) => handleNavClick(e, href)}
                 className="text-white/80 hover:text-gold transition-colors text-sm font-semibold tracking-wide uppercase"
               >
                 {link.label}
@@ -201,7 +242,7 @@ export default function Navigation() {
               <Link
                 key={link.label}
                 href={href}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(e) => handleNavClick(e, href)}
                 className="text-white/90 hover:text-gold transition-colors text-base font-medium"
               >
                 {link.label}

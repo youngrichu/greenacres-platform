@@ -32,6 +32,7 @@ export default function AboutUsStory() {
 
   return (
     <section
+      id="about"
       ref={sectionRef}
       className="section-padding bg-cream relative overflow-hidden"
     >
