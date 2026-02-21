@@ -208,7 +208,7 @@ export default function EthiopiaCulture() {
                 ref={videoRef1}
                 src="/assets/heritage/coffee-ceremony-1.png"
                 alt="Traditional Ethiopian Coffee Ceremony"
-                videoSrc={getCldVideoUrl({ src: "roasting__xxmigh" })}
+                videoSrc={getCldVideoUrl({ src: "roasting_xxmlgh" })}
                 className="aspect-[3/4]"
               />
               {/* Landscape → coffee_highland.mp4 */}

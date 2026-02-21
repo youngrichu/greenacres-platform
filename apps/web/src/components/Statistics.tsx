@@ -89,7 +89,7 @@ export default function Statistics() {
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source
-          src={getCldVideoUrl({ src: "coffe_for_numbers_irilp8" })}
+          src={getCldVideoUrl({ src: "coffe_for_numbers_lrilp8" })}
           type="video/mp4"
         />
       </video>
