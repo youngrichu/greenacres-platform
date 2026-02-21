@@ -102,6 +102,7 @@ export default function Navigation() {
               fill
               className="object-contain"
               priority
+              unoptimized
             />
           </div>
           <div className="hidden sm:block">

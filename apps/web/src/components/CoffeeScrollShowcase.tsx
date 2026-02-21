@@ -31,21 +31,6 @@ function buildMeshGradient(c1: string, c2: string, c3: string): string {
   ].join(", ");
 }
 
-// ─── Image Preloader ───────────────────────────────────────────────
-function preloadImages(urls: string[]): Promise<void> {
-  return Promise.all(
-    urls.map(
-      (url) =>
-        new Promise<void>((resolve) => {
-          const img = new window.Image();
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = url;
-        }),
-    ),
-  ).then(() => {});
-}
-
 export default function CoffeeScrollShowcase() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -66,7 +51,7 @@ export default function CoffeeScrollShowcase() {
 
   const { user, loading } = useAuth();
   const [coffeeIds, setCoffeeIds] = useState<Record<string, string>>({});
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const { setCurrentIndex } = useCoffeeScrollStore();
@@ -92,16 +77,7 @@ export default function CoffeeScrollShowcase() {
     fetchCoffees();
   }, []);
 
-  // Preload all images
-  useEffect(() => {
-    const allImages = [
-      ...coffees.map((c) => getCldImageUrl({ src: c.juteBagImage })),
-      ...coffees.map((c) => getCldImageUrl({ src: c.flavorImage })),
-    ];
-    preloadImages(allImages).then(() => {
-      setImagesLoaded(true);
-    });
-  }, [coffees]);
+  // Using native Next.js loading logic instead of manual preloader
 
   // ─── Animate to a specific index ───────────────────────────────
   const animateToIndex = useCallback(
@@ -589,7 +565,6 @@ export default function CoffeeScrollShowcase() {
                     className="object-contain drop-shadow-2xl"
                     sizes="(max-width: 768px) 100vw, 50vw"
                     priority={i === 0}
-                    unoptimized
                   />
                 </div>
               ))}

@@ -74,7 +74,7 @@ const HoverVideoCard = forwardRef<HTMLVideoElement, HoverVideoCardProps>(
             muted
             playsInline
             loop
-            preload="metadata"
+            preload="none"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               opacity: 0,

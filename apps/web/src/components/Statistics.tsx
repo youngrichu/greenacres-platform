@@ -22,11 +22,22 @@ export default function Statistics() {
   const hasAnimated = useRef(false);
   const [counts, setCounts] = useState<number[]>(stats.map(() => 0));
 
-  // Slow video playback
+  // Slow video playback and lazy play
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.6;
     }
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top bottom",
+        onEnter: () => videoRef.current?.play().catch(() => {}),
+        onLeave: () => videoRef.current?.pause(),
+        onEnterBack: () => videoRef.current?.play().catch(() => {}),
+        onLeaveBack: () => videoRef.current?.pause(),
+      });
+    }, sectionRef);
+    return () => ctx.revert();
   }, []);
 
   // Sequential animation triggered from the section
@@ -82,16 +93,13 @@ export default function Statistics() {
       {/* Background Video */}
       <video
         ref={videoRef}
-        autoPlay
         muted
         loop
         playsInline
+        preload="none"
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source
-          src={getCldVideoUrl({ src: "coffe_for_numbers_lrilp8" })}
-          type="video/mp4"
-        />
+        <source src={getCldVideoUrl({ src: "coffe_for_numbers_lrilp8" })} />
       </video>
 
       {/* Cinematic overlay layers */}

@@ -23,16 +23,13 @@ const VideoRef = ({
 }) => (
   <video
     ref={videoRef}
-    autoPlay
     muted
     loop
     playsInline
+    preload="none"
     className="absolute inset-0 w-full h-full object-cover"
   >
-    <source
-      src={getCldVideoUrl({ src: "green-beans-machine_g8ptru" })}
-      type="video/mp4"
-    />
+    <source src={getCldVideoUrl({ src: "green-beans-machine_g8ptru" })} />
   </video>
 );
 
@@ -139,11 +136,22 @@ export default function MissionVision() {
     return () => ctx.revert();
   }, []);
 
-  // Slow video playback
+  // Slow video playback and lazy play
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.5;
     }
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: videoRef.current,
+        start: "top bottom",
+        onEnter: () => videoRef.current?.play().catch(() => {}),
+        onLeave: () => videoRef.current?.pause(),
+        onEnterBack: () => videoRef.current?.play().catch(() => {}),
+        onLeaveBack: () => videoRef.current?.pause(),
+      });
+    }, sectionRef);
+    return () => ctx.revert();
   }, []);
 
   return (
