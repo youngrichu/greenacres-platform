@@ -102,6 +102,35 @@ export default function Hero() {
       videoRef.current.playbackRate = 0.7;
       videoRef.current.play().catch(() => {});
     }
+
+    // Force play on scroll or visibility change to counter browser optimization pausing
+    const handleVisibilityPlay = () => {
+      if (!document.hidden && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityPlay);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && videoRef.current) {
+            videoRef.current.play().catch(() => {});
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
+    }
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityPlay);
+      observer.disconnect();
+    };
   }, []);
 
   return (

@@ -702,7 +702,7 @@ export default function CoffeeScrollShowcase() {
 
         {/* ═══ SECTION LABEL ═══ */}
         <div className="absolute top-20 right-4 md:top-8 md:right-12 z-30">
-          <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase text-forest/30">
+          <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase text-forest/70">
             Our Collection
           </span>
         </div>

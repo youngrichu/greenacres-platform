@@ -46,11 +46,7 @@ service cloud.firestore {
     
     // Mail
     match /mail/{mailId} {
-      allow create: if isAdmin(); // Only admins/system can trigger emails directly regarding potential spam
-      // But actually, triggers usually run as admin. 
-      // If we use 'Trigger Email' extension, we write to 'mail' collection.
-      // We might restrict this to admin only, or specific authenticated users?
-      // For now, restrict to admin.
+      allow create: if true; // Allow users and public contact forms to trigger extensions
       allow read: if isAdmin();
     }
   }

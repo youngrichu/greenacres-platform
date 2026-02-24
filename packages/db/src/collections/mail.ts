@@ -1,57 +1,102 @@
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { getDb, COLLECTIONS } from '../firebase';
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { getDb, COLLECTIONS } from "../firebase";
 
-export const ADMIN_EMAIL = 'ethiocof@greenacrescoffee.com';
+export const ADMIN_EMAIL = "ethiocof@greenacrescoffee.com";
 
 export interface MailEntry {
-    to: string | string[];
-    cc?: string | string[];
-    bcc?: string | string[];
-    message: {
-        subject: string;
-        text?: string;
-        html?: string;
-    };
-    template?: {
-        name: string;
-        data: Record<string, unknown>;
-    };
+  to: string | string[];
+  cc?: string | string[];
+  bcc?: string | string[];
+  message: {
+    subject: string;
+    text?: string;
+    html?: string;
+  };
+  template?: {
+    name: string;
+    data: Record<string, unknown>;
+  };
 }
 
 /**
- * Sends an email by adding a document to the mail collection.
- * This is picked up by the Firebase "Trigger Email" extension.
+ * Sends an email directly via Mailtrap API, bypassing the Firebase Extension.
  */
 export async function sendEmail(mail: MailEntry): Promise<void> {
-    try {
-        const db = getDb();
-        const mailRef = collection(db, COLLECTIONS.MAIL);
+  const MAILTRAP_API_TOKEN =
+    process.env.MAILTRAP_API_TOKEN ||
+    process.env.NEXT_PUBLIC_MAILTRAP_API_TOKEN;
+  const MAILTRAP_INBOX_ID =
+    process.env.MAILTRAP_INBOX_ID || process.env.NEXT_PUBLIC_MAILTRAP_INBOX_ID;
 
-        await addDoc(mailRef, {
-            ...mail,
-            delivery: {
-                startTime: Timestamp.now(),
-                state: 'PENDING',
-            },
-        });
-    } catch (error: unknown) {
-        console.error('Failed to queue email:', error);
-        // We don't throw here to avoid failing the main operation if email fails
+  // We try to use the API directly to avoid circular dependencies between packages/db and apps/web
+  try {
+    if (!MAILTRAP_API_TOKEN) {
+      console.error("sendEmail failed: missing MAILTRAP_API_TOKEN");
+      return;
     }
+
+    const isProduction = process.env.NODE_ENV === "production";
+    let endpoint = "https://send.api.mailtrap.io/api/send";
+    let headers: Record<string, string> = {
+      Authorization: `Bearer ${MAILTRAP_API_TOKEN}`,
+      "Content-Type": "application/json",
+    };
+    let body: any = {
+      to: Array.isArray(mail.to)
+        ? mail.to.map((email) => ({ email }))
+        : [{ email: mail.to }],
+      from: {
+        email: "no-reply@greenacrescoffee.com",
+        name: "Greenacres System",
+      },
+      subject: mail.message.subject,
+      html: mail.message.html,
+      text:
+        mail.message.text || mail.message.html?.replace(/<[^>]*>?/gm, "") || "",
+    };
+
+    // If not in production, use the Sandbox API instead
+    if (!isProduction && MAILTRAP_INBOX_ID) {
+      endpoint = `https://sandbox.api.mailtrap.io/api/send/${MAILTRAP_INBOX_ID}`;
+      headers["Api-Token"] = MAILTRAP_API_TOKEN;
+      delete headers["Authorization"];
+      body.from = { email: "mailtrap@example.com", name: "Greenacres Sandbox" }; // Sandbox requires arbitrary/verified domains
+      body.subject = `[SANDBOX] ${body.subject}`;
+    }
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Mailtrap API Error:", response.status, errorText);
+    }
+  } catch (error: unknown) {
+    console.error("Failed to send email:", error);
+  }
 }
 
-import { createFormattedEmail } from '../templates/email-theme';
+import { createFormattedEmail } from "../templates/email-theme";
 
 /**
  * Notify admin about a new registration
  */
-import { User, InquirySubmission, InquiryItem, BagSizeLabels, BagTypeLabels } from '@greenacres/types';
+import {
+  User,
+  InquirySubmission,
+  InquiryItem,
+  BagSizeLabels,
+  BagTypeLabels,
+} from "@greenacres/types";
 
 /**
  * Notify admin about a new registration
  */
 export async function notifyAdminRegistration(userData: User): Promise<void> {
-    const content = `
+  const content = `
         <h1>New Buyer Registration</h1>
         <p>A new buyer has requested access to the platform.</p>
         <h2>Company Details</h2>
@@ -66,20 +111,23 @@ export async function notifyAdminRegistration(userData: User): Promise<void> {
         </center>
     `;
 
-    await sendEmail({
-        to: ADMIN_EMAIL,
-        message: {
-            subject: `New Buyer Registration: ${userData.companyName}`,
-            html: createFormattedEmail(content, 'New Registration'),
-        },
-    });
+  await sendEmail({
+    to: ADMIN_EMAIL,
+    message: {
+      subject: `New Buyer Registration: ${userData.companyName}`,
+      html: createFormattedEmail(content, "New Registration"),
+    },
+  });
 }
 
 /**
  * Notify buyer about their registration being received
  */
-export async function notifyBuyerRegistrationReceived(email: string, companyName: string): Promise<void> {
-    const content = `
+export async function notifyBuyerRegistrationReceived(
+  email: string,
+  companyName: string,
+): Promise<void> {
+  const content = `
         <h1>Registration Received</h1>
         <p>Dear ${companyName},</p>
         <p>Thank you for registering with Greenacres Coffee.</p>
@@ -88,27 +136,27 @@ export async function notifyBuyerRegistrationReceived(email: string, companyName
         <p>Best regards,<br>The Greenacres Team</p>
     `;
 
-    await sendEmail({
-        to: email,
-        message: {
-            subject: 'Registration Received - Greenacres Coffee',
-            html: createFormattedEmail(content, 'Registration Received'),
-        },
-    });
+  await sendEmail({
+    to: email,
+    message: {
+      subject: "Registration Received - Greenacres Coffee",
+      html: createFormattedEmail(content, "Registration Received"),
+    },
+  });
 }
 
 /**
  * Notify buyer about approval/rejection
  */
 export async function notifyUserStatusUpdate(userData: User): Promise<void> {
-    const isApproved = userData.status === 'approved';
-    const subject = isApproved
-        ? 'Account Approved - Greenacres Coffee'
-        : 'Registration Update - Greenacres Coffee';
+  const isApproved = userData.status === "approved";
+  const subject = isApproved
+    ? "Account Approved - Greenacres Coffee"
+    : "Registration Update - Greenacres Coffee";
 
-    let content = '';
-    if (isApproved) {
-        content = `
+  let content = "";
+  if (isApproved) {
+    content = `
             <h1>Account Approved</h1>
             <p>Congratulations <strong>${userData.companyName}</strong>,</p>
             <p>Your buyer account on the Greenacres platform has been fully approved. You now have exclusive access to our live inventory and pricing.</p>
@@ -120,8 +168,8 @@ export async function notifyUserStatusUpdate(userData: User): Promise<void> {
             <br>
             <p>Best regards,<br>The Greenacres Team</p>
         `;
-    } else {
-        content = `
+  } else {
+    content = `
             <h1>Registration Update</h1>
             <p>Dear ${userData.companyName},</p>
             <p>Thank you for your interest in Greenacres Coffee.</p>
@@ -130,23 +178,29 @@ export async function notifyUserStatusUpdate(userData: User): Promise<void> {
             <br>
             <p>Best regards,<br>The Greenacres Team</p>
         `;
-    }
+  }
 
-    await sendEmail({
-        to: userData.email,
-        message: { subject, html: createFormattedEmail(content, subject) },
-    });
+  await sendEmail({
+    to: userData.email,
+    message: { subject, html: createFormattedEmail(content, subject) },
+  });
 }
 
 /**
  * Notify admin about a new inquiry
  */
-export async function notifyAdminInquiry(userData: User, inquiryData: InquirySubmission): Promise<void> {
-    const coffeeItemsHtml = inquiryData.coffeeItems.map((item: InquiryItem) =>
-        `<li>${item.coffeeName} - ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType}) — Location: ${item.preferredLocation}</li>`
-    ).join('');
+export async function notifyAdminInquiry(
+  userData: User,
+  inquiryData: InquirySubmission,
+): Promise<void> {
+  const coffeeItemsHtml = inquiryData.coffeeItems
+    .map(
+      (item: InquiryItem) =>
+        `<li>${item.coffeeName} - ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType}) — Location: ${item.preferredLocation}</li>`,
+    )
+    .join("");
 
-    const content = `
+  const content = `
         <h3>New Coffee Inquiry</h3>
         <p><strong>Company:</strong> ${userData.companyName}</p>
         <p><strong>Buyer:</strong> ${userData.contactPerson} (${userData.email})</p>
@@ -154,30 +208,36 @@ export async function notifyAdminInquiry(userData: User, inquiryData: InquirySub
         <h4>Requested Items:</h4>
         <ul>${coffeeItemsHtml}</ul>
         <br>
-        <p><strong>Message:</strong> ${inquiryData.message || 'N/A'}</p>
-        <p><strong>Target Shipment:</strong> ${inquiryData.targetShipmentDate ? new Date(inquiryData.targetShipmentDate).toLocaleDateString() : 'N/A'}</p>
+        <p><strong>Message:</strong> ${inquiryData.message || "N/A"}</p>
+        <p><strong>Target Shipment:</strong> ${inquiryData.targetShipmentDate ? new Date(inquiryData.targetShipmentDate).toLocaleDateString() : "N/A"}</p>
         <br>
         <p>Please log in to the admin dashboard to view full details.</p>
     `;
 
-    await sendEmail({
-        to: ADMIN_EMAIL,
-        message: {
-            subject: `New Inquiry from ${userData.companyName}`,
-            html: createFormattedEmail(content, 'New Inquiry'),
-        },
-    });
+  await sendEmail({
+    to: ADMIN_EMAIL,
+    message: {
+      subject: `New Inquiry from ${userData.companyName}`,
+      html: createFormattedEmail(content, "New Inquiry"),
+    },
+  });
 }
 
 /**
  * Send inquiry confirmation to buyer
  */
-export async function notifyBuyerInquiryConfirmation(userData: User, inquiryData: InquirySubmission): Promise<void> {
-    const coffeeItemsHtml = inquiryData.coffeeItems.map((item: InquiryItem) =>
-        `<li>${item.coffeeName} - ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType})</li>`
-    ).join('');
+export async function notifyBuyerInquiryConfirmation(
+  userData: User,
+  inquiryData: InquirySubmission,
+): Promise<void> {
+  const coffeeItemsHtml = inquiryData.coffeeItems
+    .map(
+      (item: InquiryItem) =>
+        `<li>${item.coffeeName} - ${item.quantity} bags (${BagSizeLabels[item.bagSize] || item.bagSize}, ${BagTypeLabels[item.bagType] || item.bagType})</li>`,
+    )
+    .join("");
 
-    const content = `
+  const content = `
         <h3>Hello ${userData.companyName},</h3>
         <p>We have received your inquiry for the following coffees:</p>
         <ul>${coffeeItemsHtml}</ul>
@@ -187,11 +247,11 @@ export async function notifyBuyerInquiryConfirmation(userData: User, inquiryData
         <p>The Greenacres Team</p>
     `;
 
-    await sendEmail({
-        to: userData.email,
-        message: {
-            subject: 'Inquiry Confirmation - Greenacres Coffee',
-            html: createFormattedEmail(content, 'Inquiry Confirmation'),
-        },
-    });
+  await sendEmail({
+    to: userData.email,
+    message: {
+      subject: "Inquiry Confirmation - Greenacres Coffee",
+      html: createFormattedEmail(content, "Inquiry Confirmation"),
+    },
+  });
 }

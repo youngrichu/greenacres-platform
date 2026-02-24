@@ -10,6 +10,7 @@ import {
   CoffeeBranchImage,
 } from "./CoffeeDecorationsImage";
 import { Linkedin, Facebook, Instagram, Music2 } from "lucide-react";
+import { submitContactFormAction } from "@/app/actions/contact";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,11 +42,23 @@ export default function Footer() {
     return () => ctx.revert();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormStatus("sending");
-    // Simulate form submission
-    setTimeout(() => setFormStatus("sent"), 1500);
+
+    const formElement = e.currentTarget;
+    const formData = new FormData(formElement);
+
+    const result = await submitContactFormAction(formData);
+
+    if (result.success) {
+      setFormStatus("sent");
+      formElement.reset();
+      setTimeout(() => setFormStatus("idle"), 5000);
+    } else {
+      console.error(result.error);
+      setFormStatus("idle");
+    }
   };
 
   return (
@@ -104,6 +117,7 @@ export default function Footer() {
                 <label className="block text-white/80 text-sm mb-2">Name</label>
                 <input
                   type="text"
+                  name="name"
                   required
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-gold transition-colors"
                   placeholder="Your name"
@@ -115,6 +129,7 @@ export default function Footer() {
                 </label>
                 <input
                   type="email"
+                  name="email"
                   required
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-gold transition-colors"
                   placeholder="ethiocof@greenacrescoffee.com"
@@ -128,6 +143,7 @@ export default function Footer() {
               </label>
               <input
                 type="text"
+                name="company"
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-gold transition-colors"
                 placeholder="Your company name"
               />
@@ -137,7 +153,10 @@ export default function Footer() {
               <label className="block text-white/80 text-sm mb-2">
                 Inquiry Type
               </label>
-              <select className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-gold transition-colors">
+              <select
+                name="type"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-gold transition-colors"
+              >
                 <option value="samples" className="text-forest">
                   Request Samples
                 </option>
@@ -158,7 +177,9 @@ export default function Footer() {
                 Message
               </label>
               <textarea
+                name="message"
                 rows={4}
+                required
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-gold transition-colors resize-none"
                 placeholder="Tell us about your requirements..."
               />

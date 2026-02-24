@@ -293,7 +293,9 @@ export default function PortalLayout({
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto">{children}</main>
+          <main className="flex-1 overflow-auto" data-lenis-prevent="true">
+            {children}
+          </main>
         </div>
 
         {/* Cart Sheet */}
