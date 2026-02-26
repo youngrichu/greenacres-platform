@@ -41,6 +41,7 @@ export default function CoffeeScrollShowcase() {
   const bgRightRef = useRef<HTMLDivElement>(null);
   const flavorBgRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+  const innerContentRef = useRef<HTMLDivElement>(null);
 
   // Mutable refs for scroll state
   const activeIndexRef = useRef(0);
@@ -135,11 +136,9 @@ export default function CoffeeScrollShowcase() {
         });
       }
 
-      // ── Jute bag image transition ──
+      // ── Jute bag image pulling transition (Bennett style) ──
       if (bagContainerRef.current) {
         const isMobile = window.innerWidth < 768;
-        const enterOffset = isMobile ? 40 : 100;
-        const exitOffset = isMobile ? -20 : -50;
         const bags = bagContainerRef.current.querySelectorAll(".jute-bag-img");
 
         // Kill all competing bag tweens first
@@ -148,37 +147,41 @@ export default function CoffeeScrollShowcase() {
         bags.forEach((bag, i) => {
           const el = bag as HTMLElement;
           if (i === index) {
-            // Make visible immediately, then animate in
+            // Incoming bag: starts off-screen (bottom if scrolling down, top if scrolling up)
+            // and slides into the center. Wait for the outgoing bag to mostly clear.
+            const delay = isMobile ? 0.4 : 0.6;
             gsap.set(el, { visibility: "visible", zIndex: 2 });
             gsap.fromTo(
               el,
               {
-                y: direction * enterOffset,
+                yPercent: direction === 1 ? 100 : -100,
                 opacity: 0,
               },
               {
-                y: 0,
+                yPercent: 0,
                 opacity: 1,
-                duration: isMobile ? 0.5 : 0.8,
-                ease: "power2.out",
+                duration: isMobile ? 0.7 : 0.9,
+                delay: delay,
+                ease: "power3.out",
               },
             );
           } else if (el.style.visibility !== "hidden") {
-            // Only animate out elements that are currently visible
+            // Outgoing bag: slides off-screen (top if scrolling down, bottom if scrolling up)
+            // matching the natural pull of the scroll.
             gsap.to(el, {
-              y: direction * exitOffset,
+              yPercent: direction === 1 ? -100 : 100,
               opacity: 0,
-              duration: isMobile ? 0.3 : 0.45,
-              ease: "power2.in",
+              duration: isMobile ? 0.6 : 0.8,
+              ease: "power2.inOut",
               onComplete: () => {
-                gsap.set(el, { visibility: "hidden", zIndex: 1, y: 0 });
+                gsap.set(el, { visibility: "hidden", zIndex: 1, yPercent: 0 });
               },
             });
           }
         });
       }
 
-      // ── Staggered content entrance ──
+      // ── Staggered content entrance (Bennett style pulling) ──
       if (detailsRef.current) {
         const isMobile = window.innerWidth < 768;
         const panels = detailsRef.current.querySelectorAll(".detail-panel");
@@ -196,24 +199,33 @@ export default function CoffeeScrollShowcase() {
             gsap.set(el, { visibility: "visible", opacity: 1 });
             el.style.display = "flex";
             const children = el.querySelectorAll(".stagger-item");
+            // Text staggers in from the direction of scroll, delayed to clear old text
+            const delay = isMobile ? 0.3 : 0.5;
             gsap.fromTo(
               children,
-              { y: isMobile ? 15 : 30, opacity: 0 },
+              { yPercent: direction === 1 ? 80 : -80, opacity: 0 },
               {
-                y: 0,
+                yPercent: 0,
                 opacity: 1,
-                duration: isMobile ? 0.35 : 0.5,
-                stagger: isMobile ? 0.03 : 0.06,
-                ease: "power2.out",
+                duration: isMobile ? 0.5 : 0.7,
+                delay: delay,
+                stagger: isMobile ? 0.04 : 0.08,
+                ease: "power3.out",
               },
             );
           } else if (el.style.visibility !== "hidden") {
-            gsap.to(el, {
+            const children = el.querySelectorAll(".stagger-item");
+            // Text pulls out in the direction of scroll
+            gsap.to(children, {
+              yPercent: direction === 1 ? -80 : 80,
               opacity: 0,
-              duration: isMobile ? 0.15 : 0.25,
+              duration: isMobile ? 0.4 : 0.6,
+              stagger: isMobile ? 0.02 : 0.04,
+              ease: "power2.in",
               onComplete: () => {
                 el.style.display = "none";
                 gsap.set(el, { visibility: "hidden", opacity: 1 });
+                gsap.set(children, { yPercent: 0, opacity: 1 }); // reset for next entry
               },
             });
           }
@@ -297,22 +309,45 @@ export default function CoffeeScrollShowcase() {
         pinSpacing: true,
         onEnter: () => {
           isPinnedRef.current = true;
-          // Stop Lenis smooth scrolling to prevent momentum
+          gsap.killTweensOf(innerContentRef.current);
+          gsap.to(innerContentRef.current, {
+            yPercent: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          });
           const lenis = getLenisInstance();
           if (lenis) lenis.stop();
         },
         onLeave: () => {
+          // ── Bennett Tea-style exit ──
+          // As the user scrolls past the final slide the entire inner content
+          // gently glides upward — same slow elegance as bennett-tea.com.
           isPinnedRef.current = false;
+          gsap.killTweensOf(innerContentRef.current);
+          gsap.to(innerContentRef.current, {
+            yPercent: -22,
+            duration: 1.8,
+            ease: "power2.inOut",
+          });
           const lenis = getLenisInstance();
           if (lenis) lenis.start();
         },
         onEnterBack: () => {
+          // Smoothly glide back when scrolling back into the section
           isPinnedRef.current = true;
+          gsap.killTweensOf(innerContentRef.current);
+          gsap.to(innerContentRef.current, {
+            yPercent: 0,
+            duration: 1.0,
+            ease: "power3.out",
+          });
           const lenis = getLenisInstance();
           if (lenis) lenis.stop();
         },
         onLeaveBack: () => {
           isPinnedRef.current = false;
+          gsap.killTweensOf(innerContentRef.current);
+          gsap.set(innerContentRef.current, { yPercent: 0 });
           const lenis = getLenisInstance();
           if (lenis) lenis.start();
         },
@@ -454,292 +489,306 @@ export default function CoffeeScrollShowcase() {
         id="coffee"
         className="relative z-20 w-full h-[100dvh] overflow-hidden bg-cream"
       >
-        {/* ═══ SPLIT BACKGROUND ═══ */}
-        <div className="absolute inset-0 flex flex-col md:flex-row">
+        {/* ── All interior content wrapped for parallax exit ── */}
+        <div ref={innerContentRef} className="absolute inset-0">
+          {/* ═══ SPLIT BACKGROUND ═══ */}
+          <div className="absolute inset-0 flex flex-col md:flex-row">
+            <div
+              ref={bgLeftRef}
+              className="w-full h-[50%] md:w-1/2 md:h-full"
+              style={{
+                backgroundImage: buildMeshGradient(
+                  ...coffees[0].gradientColors,
+                ),
+                backgroundSize: "100% 100%",
+              }}
+            />
+            <div
+              ref={bgRightRef}
+              className="w-full h-[50%] md:w-1/2 md:h-full"
+              style={{ backgroundColor: coffees[0].bgRight }}
+            />
+          </div>
+
+          {/* ═══ FLAVOR BACKGROUND ON RIGHT PANEL ═══ */}
           <div
-            ref={bgLeftRef}
-            className="w-full h-[50%] md:w-1/2 md:h-full"
+            ref={flavorBgRef}
+            className="absolute bottom-0 md:top-0 right-0 w-full h-[50%] md:w-1/2 md:h-full overflow-hidden pointer-events-none z-[1]"
+          >
+            {coffees.map((coffee, i) => {
+              const flavorImageUrl = getCldImageUrl({
+                src: coffee.flavorImage,
+              });
+              return (
+                <div
+                  key={coffee.name}
+                  className="flavor-bg-img absolute w-full h-[120%] -top-[10%] left-0"
+                  style={{
+                    opacity: 0,
+                    backgroundImage: `url(${flavorImageUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    mixBlendMode: "multiply",
+                    transform: "scale(1)",
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* ═══ GRAIN TEXTURE OVERLAY ═══ */}
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none z-[2]"
             style={{
-              backgroundImage: buildMeshGradient(...coffees[0].gradientColors),
-              backgroundSize: "100% 100%",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
             }}
           />
+
+          {/* ═══ NAVIGATION DOTS ═══ */}
           <div
-            ref={bgRightRef}
-            className="w-full h-[50%] md:w-1/2 md:h-full"
-            style={{ backgroundColor: coffees[0].bgRight }}
-          />
-        </div>
-
-        {/* ═══ FLAVOR BACKGROUND ON RIGHT PANEL ═══ */}
-        <div
-          ref={flavorBgRef}
-          className="absolute bottom-0 md:top-0 right-0 w-full h-[50%] md:w-1/2 md:h-full overflow-hidden pointer-events-none z-[1]"
-        >
-          {coffees.map((coffee, i) => {
-            const flavorImageUrl = getCldImageUrl({ src: coffee.flavorImage });
-            return (
-              <div
-                key={coffee.name}
-                className="flavor-bg-img absolute w-full h-[120%] -top-[10%] left-0"
-                style={{
-                  opacity: 0,
-                  backgroundImage: `url(${flavorImageUrl})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  mixBlendMode: "multiply",
-                  transform: "scale(1)",
-                }}
-              />
-            );
-          })}
-        </div>
-
-        {/* ═══ GRAIN TEXTURE OVERLAY ═══ */}
-        <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none z-[2]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          }}
-        />
-
-        {/* ═══ NAVIGATION DOTS ═══ */}
-        <div
-          ref={dotsRef}
-          className="absolute left-4 top-1/2 -translate-y-1/2 md:left-10 md:top-1/2 md:-translate-y-1/2 z-30 flex flex-col gap-3"
-        >
-          {coffees.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => handleDotClick(i)}
-              className={`nav-dot w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border-2 border-white/60 transition-all duration-300 cursor-pointer hover:scale-150 ${
-                i === activeIndex
-                  ? "bg-white scale-[1.4] opacity-100"
-                  : "bg-white/30 opacity-40"
-              }`}
-              aria-label={`Go to ${coffees[i].name}`}
-            />
-          ))}
-        </div>
-
-        {/* ═══ COUNTER ═══ */}
-        <div className="absolute bottom-[3%] left-4 md:bottom-8 md:left-10 z-30 flex items-end gap-1">
-          <span
-            ref={counterRef}
-            className="text-4xl md:text-7xl font-bold text-white/90 leading-none"
-            style={{ fontFamily: "var(--font-playfair)" }}
+            ref={dotsRef}
+            className="absolute left-4 top-1/2 -translate-y-1/2 md:left-10 md:top-1/2 md:-translate-y-1/2 z-30 flex flex-col gap-3"
           >
-            01
-          </span>
-          <span className="text-white/40 text-sm md:text-xl font-light mb-1 md:mb-2">
-            / {String(total).padStart(2, "0")}
-          </span>
-        </div>
-
-        {/* ═══ MAIN CONTENT GRID ═══ */}
-        <div className="relative z-10 h-full flex flex-col md:flex-row">
-          {/* TOP/LEFT: Jute Bag Image */}
-          <div className="w-full h-[50%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4 pt-[72px] md:pt-0">
-            {/* Shadow layer */}
-            <div className="absolute bottom-[4%] md:bottom-[12%] left-1/2 -translate-x-1/2 w-[50%] md:w-[45%] h-4 md:h-10 bg-black/25 rounded-[50%] blur-xl md:blur-2xl" />
-
-            <div
-              ref={bagContainerRef}
-              className="relative h-[95%] md:h-[80%] aspect-square"
-            >
-              {coffees.map((coffee, i) => (
-                <div
-                  key={coffee.name}
-                  className="jute-bag-img absolute inset-0"
-                  style={{
-                    visibility: i === 0 ? "visible" : "hidden",
-                    opacity: i === 0 ? 1 : 0,
-                    willChange: "transform, opacity",
-                    zIndex: i === 0 ? 2 : 1,
-                  }}
-                >
-                  <CldImage
-                    src={coffee.juteBagImage}
-                    alt={`${coffee.name} jute bag`}
-                    fill
-                    className="object-contain drop-shadow-2xl"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    priority={i === 0}
-                  />
-                </div>
-              ))}
-            </div>
+            {coffees.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => handleDotClick(i)}
+                className={`nav-dot w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border-2 border-white/60 transition-all duration-300 cursor-pointer hover:scale-150 ${
+                  i === activeIndex
+                    ? "bg-white scale-[1.4] opacity-100"
+                    : "bg-white/30 opacity-40"
+                }`}
+                aria-label={`Go to ${coffees[i].name}`}
+              />
+            ))}
           </div>
 
-          {/* BOTTOM/RIGHT: Product Details */}
-          <div className="w-full h-[50%] md:w-1/2 md:h-full flex items-center justify-center md:justify-start px-6 md:pl-16 md:pr-20 relative z-10">
-            <div
-              ref={detailsRef}
-              className="relative w-full max-w-[95%] sm:max-w-md text-center md:text-left"
+          {/* ═══ COUNTER ═══ */}
+          <div className="absolute bottom-[3%] left-4 md:bottom-8 md:left-10 z-30 flex items-end gap-1">
+            <span
+              ref={counterRef}
+              className="text-4xl md:text-7xl font-bold text-white/90 leading-none"
+              style={{ fontFamily: "var(--font-playfair)" }}
             >
-              {coffees.map((coffee, i) => (
-                <div
-                  key={coffee.name}
-                  className="detail-panel flex-col items-center md:items-start gap-2 md:gap-6"
-                  style={{
-                    display: i === 0 ? "flex" : "none",
-                  }}
-                >
-                  {/* Process type */}
-                  <div className="stagger-item">
-                    <span
-                      className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase"
-                      style={{ color: coffee.accentColor }}
-                    >
-                      {coffee.process} Process
-                    </span>
-                  </div>
+              01
+            </span>
+            <span className="text-white/40 text-sm md:text-xl font-light mb-1 md:mb-2">
+              / {String(total).padStart(2, "0")}
+            </span>
+          </div>
 
-                  {/* Coffee Name */}
-                  <h2
-                    className="stagger-item text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] md:leading-[1.05]"
+          {/* ═══ MAIN CONTENT GRID ═══ */}
+          <div className="relative z-10 h-full flex flex-col md:flex-row">
+            {/* TOP/LEFT: Jute Bag Image */}
+            <div className="w-full h-[50%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4 pt-[72px] md:pt-0">
+              {/* Shadow layer */}
+              <div className="absolute bottom-[4%] md:bottom-[12%] left-1/2 -translate-x-1/2 w-[50%] md:w-[45%] h-4 md:h-10 bg-black/25 rounded-[50%] blur-xl md:blur-2xl" />
+
+              <div
+                ref={bagContainerRef}
+                className="relative h-[95%] md:h-[80%] aspect-square"
+              >
+                {coffees.map((coffee, i) => (
+                  <div
+                    key={coffee.name}
+                    className="jute-bag-img absolute inset-0"
                     style={{
-                      fontFamily: "var(--font-playfair)",
-                      color: "#1a2e1a",
+                      visibility: i === 0 ? "visible" : "hidden",
+                      opacity: i === 0 ? 1 : 0,
+                      willChange: "transform, opacity",
+                      zIndex: i === 0 ? 2 : 1,
                     }}
                   >
-                    {coffee.name}
-                  </h2>
+                    <CldImage
+                      src={coffee.juteBagImage}
+                      alt={`${coffee.name} jute bag`}
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      priority={i === 0}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                  {/* Description */}
-                  <p
-                    className="stagger-item text-sm md:text-base lg:text-lg leading-snug md:leading-relaxed max-w-[95%] md:max-w-md mx-auto md:mx-0"
-                    style={{ color: "#3d5c3d" }}
+            {/* BOTTOM/RIGHT: Product Details */}
+            <div className="w-full h-[50%] md:w-1/2 md:h-full flex items-center justify-center md:justify-start px-6 md:pl-16 md:pr-20 relative z-10">
+              <div
+                ref={detailsRef}
+                className="relative w-full max-w-[95%] sm:max-w-md text-center md:text-left"
+              >
+                {coffees.map((coffee, i) => (
+                  <div
+                    key={coffee.name}
+                    className="detail-panel flex-col items-center md:items-start gap-2 md:gap-6"
+                    style={{
+                      display: i === 0 ? "flex" : "none",
+                    }}
                   >
-                    {coffee.description}
-                  </p>
+                    {/* Process type */}
+                    <div className="stagger-item">
+                      <span
+                        className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase"
+                        style={{ color: coffee.accentColor }}
+                      >
+                        {coffee.process} Process
+                      </span>
+                    </div>
 
-                  {/* Tasting Notes Grid */}
-                  <div className="stagger-item flex flex-col gap-2 md:gap-3 items-center md:items-start w-full">
-                    <span
-                      className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase"
-                      style={{ color: "#5a7a5a" }}
+                    {/* Coffee Name */}
+                    <h2
+                      className="stagger-item text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] md:leading-[1.05]"
+                      style={{
+                        fontFamily: "var(--font-playfair)",
+                        color: "#1a2e1a",
+                      }}
                     >
-                      Tasting Notes
-                    </span>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-1.5 md:gap-2">
-                      {coffee.notes.map((note) => (
-                        <Badge
-                          key={note}
-                          variant="outline"
-                          className="border-[#2d4a2d]/30 bg-white/70 backdrop-blur-sm text-xs md:text-sm font-medium px-2 py-0.5 md:px-3 md:py-1.5 shadow-sm"
-                          style={{ color: "#1a2e1a" }}
+                      {coffee.name}
+                    </h2>
+
+                    {/* Description */}
+                    <p
+                      className="stagger-item text-sm md:text-base lg:text-lg leading-snug md:leading-relaxed max-w-[95%] md:max-w-md mx-auto md:mx-0"
+                      style={{ color: "#3d5c3d" }}
+                    >
+                      {coffee.description}
+                    </p>
+
+                    {/* Tasting Notes Grid */}
+                    <div className="stagger-item flex flex-col gap-2 md:gap-3 items-center md:items-start w-full">
+                      <span
+                        className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase"
+                        style={{ color: "#5a7a5a" }}
+                      >
+                        Tasting Notes
+                      </span>
+                      <div className="flex flex-wrap justify-center md:justify-start gap-1.5 md:gap-2">
+                        {coffee.notes.map((note) => (
+                          <Badge
+                            key={note}
+                            variant="outline"
+                            className="border-[#2d4a2d]/30 bg-white/70 backdrop-blur-sm text-xs md:text-sm font-medium px-2 py-0.5 md:px-3 md:py-1.5 shadow-sm"
+                            style={{ color: "#1a2e1a" }}
+                          >
+                            {note}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Grade */}
+                    <div className="stagger-item flex items-center justify-center md:justify-start gap-3 w-full">
+                      <span
+                        className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase"
+                        style={{ color: "#5a7a5a" }}
+                      >
+                        Grade
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="bg-[#1a2e1a]/10 border border-[#1a2e1a]/20 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider"
+                        style={{ color: "#1a2e1a" }}
+                      >
+                        {coffee.grade}
+                      </Badge>
+                    </div>
+
+                    {/* CTA */}
+                    <div className="stagger-item pt-1 md:pt-2 w-full flex justify-center md:justify-start">
+                      {loading ? (
+                        <div className="h-10 md:h-12 w-32 md:w-40 bg-forest/10 rounded-full animate-pulse" />
+                      ) : user ? (
+                        <Link
+                          href={
+                            coffeeIds[coffee.name]
+                              ? `/portal/catalog/${coffeeIds[coffee.name]}`
+                              : "/portal/catalog"
+                          }
                         >
-                          {note}
-                        </Badge>
-                      ))}
+                          <Button
+                            size="lg"
+                            className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
+                          >
+                            View In Portal
+                            <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                          </Button>
+                        </Link>
+                      ) : coffeeIds[coffee.name] ? (
+                        <Link href={`/catalog/${coffeeIds[coffee.name]}`}>
+                          <Button
+                            size="lg"
+                            className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
+                          >
+                            View Details
+                            <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Button
+                          size="lg"
+                          disabled
+                          className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest/20 text-forest/40 font-semibold rounded-full cursor-not-allowed gap-2"
+                        >
+                          Coming Soon
+                          <Lock className="w-3 h-3" />
+                        </Button>
+                      )}
                     </div>
                   </div>
-
-                  {/* Grade */}
-                  <div className="stagger-item flex items-center justify-center md:justify-start gap-3 w-full">
-                    <span
-                      className="text-[10px] md:text-xs font-semibold tracking-[0.2em] uppercase"
-                      style={{ color: "#5a7a5a" }}
-                    >
-                      Grade
-                    </span>
-                    <Badge
-                      variant="secondary"
-                      className="bg-[#1a2e1a]/10 border border-[#1a2e1a]/20 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider"
-                      style={{ color: "#1a2e1a" }}
-                    >
-                      {coffee.grade}
-                    </Badge>
-                  </div>
-
-                  {/* CTA */}
-                  <div className="stagger-item pt-1 md:pt-2 w-full flex justify-center md:justify-start">
-                    {loading ? (
-                      <div className="h-10 md:h-12 w-32 md:w-40 bg-forest/10 rounded-full animate-pulse" />
-                    ) : user ? (
-                      <Link
-                        href={
-                          coffeeIds[coffee.name]
-                            ? `/portal/catalog/${coffeeIds[coffee.name]}`
-                            : "/portal/catalog"
-                        }
-                      >
-                        <Button
-                          size="lg"
-                          className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
-                        >
-                          View In Portal
-                          <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-                        </Button>
-                      </Link>
-                    ) : coffeeIds[coffee.name] ? (
-                      <Link href={`/catalog/${coffeeIds[coffee.name]}`}>
-                        <Button
-                          size="lg"
-                          className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest hover:bg-forest-light text-white font-semibold rounded-full shadow-lg hover:scale-105 transition-all gap-2"
-                        >
-                          View Details
-                          <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button
-                        size="lg"
-                        disabled
-                        className="h-10 md:h-12 px-6 md:px-8 text-sm md:text-base bg-forest/20 text-forest/40 font-semibold rounded-full cursor-not-allowed gap-2"
-                      >
-                        Coming Soon
-                        <Lock className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ═══ SECTION LABEL ═══ */}
-        <div className="absolute top-20 right-4 md:top-8 md:right-12 z-30">
-          <span className="text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase text-forest/70">
-            Our Collection
-          </span>
-        </div>
-
-        {/* ═══ SCROLL INDICATOR (on first load) ═══ */}
-        {activeIndex === 0 && (
-          <div className="absolute bottom-8 right-8 md:right-12 z-30 flex flex-col items-center gap-2 animate-bounce">
-            <span className="text-xs text-forest/40 tracking-widest uppercase">
-              Scroll
+          {/* ═══ SECTION LABEL ═══ */}
+          <div className="absolute top-[72px] left-0 right-0 md:top-20 md:right-10 md:left-auto z-30 flex flex-col items-center md:items-end pointer-events-none px-4 md:px-0">
+            <span className="text-[9px] md:text-[10px] font-semibold tracking-[0.4em] uppercase text-forest/50 mb-0.5">
+              Curated For You
             </span>
-            <svg
-              width="16"
-              height="24"
-              viewBox="0 0 16 24"
-              fill="none"
-              className="text-forest/30"
+            <h2
+              className="text-2xl sm:text-3xl md:text-4xl font-bold text-forest/90 leading-none"
+              style={{ fontFamily: "var(--font-playfair)" }}
             >
-              <rect
-                x="1"
-                y="1"
-                width="14"
-                height="22"
-                rx="7"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-              <circle cx="8" cy="8" r="2" fill="currentColor">
-                <animate
-                  attributeName="cy"
-                  values="8;16;8"
-                  dur="1.5s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </svg>
+              Our Collection
+            </h2>
           </div>
-        )}
+
+          {/* ═══ SCROLL INDICATOR (on first load) ═══ */}
+          {activeIndex === 0 && (
+            <div className="absolute bottom-8 right-8 md:right-12 z-30 flex flex-col items-center gap-2 animate-bounce">
+              <span className="text-xs text-forest/40 tracking-widest uppercase">
+                Scroll
+              </span>
+              <svg
+                width="16"
+                height="24"
+                viewBox="0 0 16 24"
+                fill="none"
+                className="text-forest/30"
+              >
+                <rect
+                  x="1"
+                  y="1"
+                  width="14"
+                  height="22"
+                  rx="7"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+                <circle cx="8" cy="8" r="2" fill="currentColor">
+                  <animate
+                    attributeName="cy"
+                    values="8;16;8"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </svg>
+            </div>
+          )}
+        </div>
+        {/* end parallax wrapper */}
       </section>
     </div>
   );
