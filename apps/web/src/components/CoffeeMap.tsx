@@ -1,154 +1,208 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
-import { CldImage } from "next-cloudinary";
+import { useState, useRef, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { ArrowRight, MapPin, MousePointerClick } from "lucide-react";
 import gsap from "gsap";
-import { ArrowRight, MapPin } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Badge } from "@/components/ui/badge";
 import { CoffeeBranchImage, CoffeeLeafImage } from "./CoffeeDecorationsImage";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ── Dynamically import the Leaflet component (client-only, never SSR) ──────────
+const EthiopiaLeafletMap = dynamic(() => import("./LeafletMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-white/5 rounded-xl animate-pulse">
+      <div className="text-gold/50 text-sm font-medium tracking-widest uppercase">
+        Loading map…
+      </div>
+    </div>
+  ),
+});
+
+// ── Region data ───────────────────────────────────────────────────────────────
 interface CoffeeRegion {
   id: string;
   name: string;
-  position: { top: string; left: string };
   altitude: string;
   process: string[];
   flavor: string[];
   description: string;
-  labelPosition?: "top" | "bottom" | "left" | "right";
 }
 
 const coffeeRegions: CoffeeRegion[] = [
   {
     id: "yirgacheffe",
     name: "Yirgacheffe",
-    position: { top: "68%", left: "45%" }, // Gedio zone — south of Sidama
-    altitude: "1,750 - 2,200m",
+    altitude: "1,750 – 2,200m",
     process: ["Washed", "Natural"],
     flavor: ["Floral", "Citrus", "Bergamot", "Tea-like"],
     description:
       "The birthplace of coffee. Yirgacheffe produces exceptionally clean, bright coffees with distinctive floral and citrus notes that have made Ethiopian coffee world-famous.",
-    labelPosition: "right",
   },
   {
     id: "sidama",
     name: "Sidama",
-    position: { top: "63%", left: "42%" }, // Sidama zone — south-central, west of Rift Valley
-    altitude: "1,500 - 2,200m",
+    altitude: "1,500 – 2,200m",
     process: ["Washed", "Natural", "Honey"],
     flavor: ["Berry", "Wine", "Chocolate", "Citrus"],
     description:
       "Known for complex, wine-like acidity and rich berry notes. Sidama coffees are prized for their balanced sweetness and velvety body.",
-    labelPosition: "right",
   },
   {
     id: "guji",
     name: "Guji",
-    position: { top: "70%", left: "52%" }, // Southern Oromiya — southeast of Sidama, within highland belt
-    altitude: "1,800 - 2,300m",
+    altitude: "1,800 – 2,300m",
     process: ["Natural", "Washed"],
     flavor: ["Stone Fruit", "Jasmine", "Honey", "Complex"],
     description:
       "A newer specialty region producing intensely fruity and complex coffees with exceptional cup quality that rivals Yirgacheffe.",
-    labelPosition: "right",
   },
   {
     id: "jimma",
     name: "Jimma",
-    position: { top: "55%", left: "32%" }, // Western Oromiya — Jimma zone
-    altitude: "1,400 - 2,000m",
+    altitude: "1,400 – 2,000m",
     process: ["Natural", "Washed"],
     flavor: ["Earthy", "Spicy", "Full-bodied", "Wild"],
     description:
       "The largest coffee-producing region in Ethiopia, known for wild forest coffees with earthy, spicy character and bold flavor.",
-    labelPosition: "right",
   },
   {
     id: "kaffa",
     name: "Kaffa",
-    position: { top: "62%", left: "27%" }, // Keficho Shekicho — south of Jimma in SNNPR
-    altitude: "1,450 - 2,100m",
+    altitude: "1,450 – 2,100m",
     process: ["Washed", "Natural"],
     flavor: ["Winey", "Chocolate", "Berry", "Spice"],
     description:
-      "The historic home of Arabica coffee. Kaffa produce complex, winey coffees with rich chocolate undertones and deep spice notes.",
-    labelPosition: "left",
+      "The historic home of Arabica coffee. Kaffa produces complex, winey coffees with rich chocolate undertones and deep spice notes.",
   },
   {
     id: "teppi",
     name: "Teppi",
-    position: { top: "52%", left: "22%" }, // Illubabor area — western Ethiopia
-    altitude: "1,100 - 1,900m",
+    altitude: "1,100 – 1,900m",
     process: ["Natural"],
     flavor: ["Wild", "Herbal", "Citrus", "Nutty"],
     description:
       "A distinct low-to-mid elevation region producing coffees with wild, herbal notes and a unique low-acidity profile.",
-    labelPosition: "left",
   },
   {
     id: "andrecha",
     name: "Andrecha",
-    position: { top: "66%", left: "20%" }, // Bench Maji — far southwest Ethiopia
-    altitude: "1,500 - 2,000m",
+    altitude: "1,500 – 2,000m",
     process: ["Natural"],
     flavor: ["Sweet", "Fruity", "Full body", "Spice"],
     description:
-      "A emerging specialty region known for sweet, full-bodied natural coffees with intense fruity characteristics.",
-    labelPosition: "left",
+      "An emerging specialty region known for sweet, full-bodied natural coffees with intense fruity characteristics.",
   },
   {
     id: "limmu",
     name: "Limmu",
-    position: { top: "48%", left: "34%" }, // Western Oromiya — between Jimma and Wellega
-    altitude: "1,400 - 2,200m",
+    altitude: "1,400 – 2,200m",
     process: ["Washed"],
     flavor: ["Wine", "Spice", "Floral", "Sweet"],
     description:
       "Produces refined washed coffees with wine-like acidity and floral complexity. Highly sought after by specialty roasters.",
-    labelPosition: "right",
   },
   {
     id: "lekempti",
     name: "Lekempti",
-    position: { top: "38%", left: "24%" }, // East Wellega zone — northwestern Oromiya
-    altitude: "1,500 - 2,100m",
+    altitude: "1,500 – 2,100m",
     process: ["Natural", "Washed"],
     flavor: ["Fruity", "Blueberry", "Winey", "Bold"],
     description:
       "Known for distinctive fruity naturals with intense blueberry notes and bold, winey sweetness that stands out in any blend.",
-    labelPosition: "right",
+  },
+  {
+    id: "harar",
+    name: "Harar",
+    altitude: "1,400 – 2,100m",
+    process: ["Natural"],
+    flavor: ["Blueberry", "Wine", "Mocha", "Exotic"],
+    description:
+      "One of Ethiopia's oldest and most legendary coffee regions. Harar naturals are prized worldwide for their distinctive wild blueberry, wine, and mocha character.",
   },
 ];
 
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function CoffeeMap() {
   const [activeRegion, setActiveRegion] = useState<CoffeeRegion | null>(null);
-  const [pulsingIndex, setPulsingIndex] = useState(0);
-  const [autoAdvance, setAutoAdvance] = useState(true);
+  // Tracks whether the user has clicked yet — stops auto-cycling and hides hint
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [showHint, setShowHint] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const infoPanelRef = useRef<HTMLDivElement>(null);
+  const cycleIndexRef = useRef(0);
+  const cycleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-advance pulsing hotspot
+  const handleRegionClick = useCallback(
+    (regionId: string) => {
+      const region = coffeeRegions.find((r) => r.id === regionId) ?? null;
+      setActiveRegion(region);
+
+      // Stop auto-cycling and dismiss hint on first real click
+      if (!hasInteracted) {
+        setHasInteracted(true);
+        setShowHint(false);
+        if (cycleTimerRef.current) clearInterval(cycleTimerRef.current);
+      }
+
+      // On mobile, scroll so the info panel title is fully below the nav bar
+      if (window.innerWidth < 1024 && infoPanelRef.current) {
+        setTimeout(() => {
+          const el = infoPanelRef.current!;
+          const top = el.getBoundingClientRect().top + window.scrollY - 72;
+          window.scrollTo({ top, behavior: "smooth" });
+        }, 150);
+      }
+    },
+    [hasInteracted],
+  );
+
+  // Auto-cycle through regions when section enters view (stops on first interaction)
   useEffect(() => {
-    if (!autoAdvance) return;
+    if (hasInteracted) return;
 
-    const interval = setInterval(() => {
-      setPulsingIndex((prev) => (prev + 1) % coffeeRegions.length);
-    }, 2500);
+    const startCycle = () => {
+      if (hasInteracted || cycleTimerRef.current) return;
+      // Show the first region immediately
+      setActiveRegion(coffeeRegions[0]);
+      cycleIndexRef.current = 0;
 
-    return () => clearInterval(interval);
-  }, [autoAdvance]);
+      cycleTimerRef.current = setInterval(() => {
+        if (hasInteracted) {
+          if (cycleTimerRef.current) clearInterval(cycleTimerRef.current);
+          return;
+        }
+        cycleIndexRef.current =
+          (cycleIndexRef.current + 1) % coffeeRegions.length;
+        setActiveRegion(coffeeRegions[cycleIndexRef.current]);
+      }, 2500);
+    };
 
-  // Handle region click - advance to next pulsing hotspot
-  const handleRegionClick = (region: CoffeeRegion, index: number) => {
-    setActiveRegion(region);
-    setAutoAdvance(false); // Stop auto-advance on first click
-    setPulsingIndex(-1); // Stop pulsing effect completely on interaction
-  };
+    // Use IntersectionObserver so cycling only begins once visible
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // Small delay so map tiles have time to render first
+          setTimeout(startCycle, 800);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
 
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    return () => {
+      observer.disconnect();
+      if (cycleTimerRef.current) clearInterval(cycleTimerRef.current);
+    };
+  }, [hasInteracted]);
+
+  // GSAP scroll entrance
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -166,7 +220,6 @@ export default function CoffeeMap() {
         },
       );
     }, sectionRef);
-
     return () => ctx.revert();
   }, []);
 
@@ -176,9 +229,8 @@ export default function CoffeeMap() {
       id="regions"
       className="section-padding bg-forest relative overflow-hidden"
     >
-      {/* Background decorations */}
+      {/* ── Background decorations ─────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Dot grid */}
         <div
           className="absolute inset-0 opacity-[0.05]"
           style={{
@@ -186,23 +238,17 @@ export default function CoffeeMap() {
             backgroundSize: "48px 48px",
           }}
         />
-
-        {/* Coffee branch — top-right */}
         <div className="absolute -top-16 -right-20 w-[420px] h-[420px] opacity-[0.08] rotate-[170deg] mix-blend-screen">
           <CoffeeBranchImage className="w-full h-full" />
         </div>
-
-        {/* Coffee leaf — bottom-left */}
         <div className="absolute -bottom-12 -left-16 w-[350px] h-[350px] opacity-[0.07] rotate-45 mix-blend-screen">
           <CoffeeLeafImage className="w-full h-full" />
         </div>
-
-        {/* Grain texture */}
         <div className="absolute inset-0 grain-texture" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Section header */}
+        {/* ── Section header ─────────────────────────────────────────────── */}
         <div className="text-center mb-16">
           <span className="text-gold text-sm font-semibold tracking-widest uppercase">
             Coffee Origins
@@ -214,143 +260,66 @@ export default function CoffeeMap() {
             Ethiopian Coffee Regions
           </h2>
           <p className="text-white/70 mt-4 max-w-2xl mx-auto text-lg">
-            Explore the legendary coffee-growing regions of Ethiopia, each with
-            its own unique terroir and flavor signature.
+            Explore the legendary coffee-growing regions of Ethiopia, each
+            shaped by its own unique terroir and flavor signature.
           </p>
         </div>
 
-        {/* Map and Info Container */}
+        {/* ── Map + Info Grid ────────────────────────────────────────────── */}
         <div
           ref={mapContainerRef}
-          className="grid lg:grid-cols-5 gap-8 items-start"
+          className="flex flex-col lg:grid lg:grid-cols-5 gap-8 items-start"
         >
-          {/* Interactive Map Wrapper - takes 3 columns */}
-          <div className="lg:col-span-3 relative px-0 sm:px-0">
-            {/* Map Container - CLIPPED */}
-            <div
-              className="relative aspect-square max-w-2xl mx-auto transition-all duration-1000 ease-in-out"
-              style={{
-                clipPath: "url(#coffee-bean-clip)",
-              }}
-            >
-              {/* Map Image */}
-              <CldImage
-                src="coffee/images/ethiopia-map-original"
-                alt="Map of Ethiopian coffee growing regions"
-                fill
-                className="object-cover"
-                priority
-              />
-
-              {/* Coffee Bean Split Overlay */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-30"
-                viewBox="0 0 512 512"
-                fill="none"
+          {/* Map — full-width on mobile, 3/5 on desktop */}
+          <div className="lg:col-span-3 w-full">
+            {/* Map wrapper — position relative so hint badge can sit inside */}
+            <div className="relative">
+              {/* Fixed height on mobile so Ethiopia is fully visible */}
+              <div
+                className="w-full rounded-xl overflow-hidden"
+                style={{ height: "clamp(420px, 50vh, 580px)" }}
               >
-                <path
-                  d="M453.18,110.065c-43.364,5.145-146.471,27.804-237.128,127.471C124.661,342.144,50.869,365.075,32.508,369.382"
-                  stroke="var(--color-forest)"
-                  strokeWidth="8"
-                  strokeLinecap="round"
+                <EthiopiaLeafletMap
+                  activeRegionId={activeRegion?.id ?? null}
+                  onRegionClick={handleRegionClick}
                 />
-                <path
-                  d="M473.689,153.187c-27.653,1.993-140.558,16.529-237.128,121.878c-92.308,100.693-165.009,129.024-192.946,136.669"
-                  stroke="var(--color-forest)"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-              </svg>
+              </div>
 
-              {/* Overlay for better marker visibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-forest/30 via-transparent to-transparent" />
+              {/* ── Hint badge ──────────────────────────────────────────────
+                  Floats over the bottom-left of the map.
+                  Pulses to draw attention, then fades out on first click.
+              ── */}
+              {showHint && (
+                <div
+                  className="absolute bottom-4 left-4 z-[1000] flex items-center gap-2
+                             bg-forest/90 border border-gold/40 backdrop-blur-sm
+                             px-3 py-2 rounded-full shadow-lg
+                             animate-fade-in pointer-events-none
+                             transition-opacity duration-700"
+                  style={{
+                    animation: "hint-pulse 2s ease-in-out infinite",
+                  }}
+                >
+                  <MousePointerClick className="w-3.5 h-3.5 text-gold flex-shrink-0" />
+                  <span className="text-white/80 text-xs font-medium tracking-wide whitespace-nowrap">
+                    Click a region to explore
+                  </span>
+                  {/* Pulsing ring behind the icon */}
+                  <span className="absolute -left-1 -top-1 w-5 h-5 rounded-full bg-gold/20 animate-ping" />
+                </div>
+              )}
             </div>
 
-            {/* Markers Layer - UNCLIPPED (sits on top of clipped map) */}
-            <div className="absolute inset-0 aspect-square max-w-2xl mx-auto pointer-events-none">
-              {coffeeRegions.map((region, index) => {
-                const isPulsing = index === pulsingIndex;
-                const isActive = activeRegion?.id === region.id;
-                const labelPos = region.labelPosition || "top";
-
-                // Label positioning styles with more spacing
-                const labelClasses = {
-                  top: "left-1/2 -translate-x-1/2 -top-12 translate-y-2 group-hover:translate-y-0",
-                  bottom:
-                    "left-1/2 -translate-x-1/2 top-10 -translate-y-2 group-hover:translate-y-0",
-                  left: "right-10 top-1/2 -translate-y-1/2 translate-x-2 group-hover:translate-x-0",
-                  right:
-                    "left-10 top-1/2 -translate-y-1/2 -translate-x-2 group-hover:translate-x-0",
-                };
-
-                const activeLabelClasses = {
-                  top: "translate-y-0 opacity-100",
-                  bottom: "translate-y-0 opacity-100",
-                  left: "translate-x-0 opacity-100",
-                  right: "translate-x-0 opacity-100",
-                };
-
-                return (
-                  <button
-                    key={region.id}
-                    onClick={() => handleRegionClick(region, index)}
-                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 group transition-all duration-500 p-4 pointer-events-auto ${
-                      isActive
-                        ? "z-30 scale-110"
-                        : "z-20 hover:scale-110 touch-scale"
-                    }`}
-                    style={{
-                      top: region.position.top,
-                      left: region.position.left,
-                    }}
-                  >
-                    {/* Pulse ring */}
-                    {isPulsing && (
-                      <span className="absolute inset-0 w-full h-full rounded-full bg-gold/60 animate-ping duration-1000" />
-                    )}
-
-                    {/* Marker */}
-                    <span
-                      className={`relative block w-5 h-5 rounded-full border-2 transition-all duration-300 ${
-                        isActive
-                          ? "bg-gold border-white shadow-lg shadow-gold/50"
-                          : isPulsing
-                            ? "bg-gold border-white shadow-md shadow-gold/30 scale-110"
-                            : "bg-gold/80 border-white/80 group-hover:bg-gold group-hover:border-white"
-                      }`}
-                    />
-
-                    {/* Label */}
-                    <span
-                      className={`absolute whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-semibold shadow-md transition-all duration-300 pointer-events-none 
-                                            ${labelClasses[labelPos]} 
-                                            ${
-                                              isActive
-                                                ? "bg-gold text-forest " +
-                                                  activeLabelClasses[labelPos]
-                                                : isPulsing
-                                                  ? "bg-white/95 text-forest " +
-                                                    activeLabelClasses[labelPos]
-                                                  : "bg-white/90 text-forest opacity-0 group-hover:opacity-100"
-                                            }`}
-                    >
-                      {region.name}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Mobile region buttons */}
-            <div className="flex flex-wrap justify-center gap-2 mt-6 lg:hidden">
-              {coffeeRegions.map((region, index) => (
+            {/* Mobile region button strip */}
+            <div className="flex flex-wrap justify-center gap-2 mt-4 lg:hidden">
+              {coffeeRegions.map((region) => (
                 <button
                   key={region.id}
-                  onClick={() => handleRegionClick(region, index)}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                  onClick={() => handleRegionClick(region.id)}
+                  className={`px-4 py-2 text-xs font-semibold rounded-full transition-all ${
                     activeRegion?.id === region.id
                       ? "bg-gold text-forest"
-                      : "bg-white/15 text-white hover:bg-white/25"
+                      : "bg-white/10 text-white hover:bg-white/20"
                   }`}
                 >
                   {region.name}
@@ -359,10 +328,10 @@ export default function CoffeeMap() {
             </div>
           </div>
 
-          {/* Region Info Panel - takes 2 columns */}
-          <div className="lg:col-span-2">
+          {/* Info Panel — 2/5 on desktop, full-width stacked on mobile */}
+          <div ref={infoPanelRef} className="lg:col-span-2 w-full scroll-mt-6">
             <div
-              className={`glass-dark rounded-2xl p-8 transition-all duration-500 sticky top-24 ${
+              className={`glass-dark rounded-2xl p-6 sm:p-8 transition-all duration-500 lg:sticky lg:top-24 ${
                 activeRegion ? "opacity-100" : "opacity-70"
               }`}
             >
@@ -378,7 +347,7 @@ export default function CoffeeMap() {
                     </h3>
                   </div>
 
-                  <p className="text-white/80 mb-8 leading-relaxed text-lg">
+                  <p className="text-white/80 mb-8 leading-relaxed text-base sm:text-lg">
                     {activeRegion.description}
                   </p>
 
@@ -387,7 +356,7 @@ export default function CoffeeMap() {
                       <span className="text-gold text-xs uppercase tracking-widest font-semibold">
                         Altitude
                       </span>
-                      <p className="text-white text-lg font-semibold mt-1">
+                      <p className="text-white text-base sm:text-lg font-semibold mt-1">
                         {activeRegion.altitude}
                       </p>
                     </div>
@@ -395,7 +364,7 @@ export default function CoffeeMap() {
                       <span className="text-gold text-xs uppercase tracking-widest font-semibold">
                         Processing
                       </span>
-                      <p className="text-white text-lg font-semibold mt-1">
+                      <p className="text-white text-base sm:text-lg font-semibold mt-1">
                         {activeRegion.process.join(", ")}
                       </p>
                     </div>
@@ -434,8 +403,8 @@ export default function CoffeeMap() {
                     <MapPin className="w-10 h-10 text-gold" />
                   </div>
                   <p className="text-white/60 text-lg">
-                    Click a region on the map to explore its unique coffee
-                    characteristics
+                    Click or tap a region on the map to explore its unique
+                    coffee characteristics
                   </p>
                 </div>
               )}
@@ -443,23 +412,6 @@ export default function CoffeeMap() {
           </div>
         </div>
       </div>
-
-      {/* SVG Clip Path Definition for Coffee Bean Shape */}
-      <svg width="0" height="0" className="absolute">
-        <defs>
-          <clipPath id="coffee-bean-clip" clipPathUnits="objectBoundingBox">
-            {/* Outer silhouette of the coffee bean to show the full map inside */}
-            <path
-              transform="scale(0.001953125, 0.001953125)"
-              d="M491.646,119.951c-0.677-1.171-1.538-2.2-2.244-3.348c-0.598-2.454-1.983-4.487-3.968-5.92
-                            c-27.978-41.05-75.195-66.953-134.765-72.953c-62.793-6.346-131.677,10.031-194.091,46.068
-                            c-62.404,36.031-111.042,87.546-136.94,145.049c-26.429,58.674-26.174,116.638,0.716,163.206
-                            c26.889,46.573,76.958,75.772,140.987,82.221c8.82,0.889,17.773,1.334,26.807,1.334c55.209,0,113.648-16.439,167.273-47.401
-                            c62.414-36.031,111.042-87.546,136.94-145.05C518.791,224.483,518.535,166.525,491.646,119.951z"
-            />
-          </clipPath>
-        </defs>
-      </svg>
     </section>
   );
 }

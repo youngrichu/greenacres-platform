@@ -199,6 +199,20 @@ h6 {
   }
 }
 
+@keyframes hint-pulse {
+
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
