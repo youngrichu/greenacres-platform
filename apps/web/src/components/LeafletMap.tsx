@@ -56,7 +56,8 @@ export default function EthiopiaLeafletMap({
       // Temporary center — will be overridden by fitBounds once GeoJSON loads
       center: [8.0, 39.0],
       zoom: 6,
-      scrollWheelZoom: false, // never hijack page scroll
+      scrollWheelZoom: false, // never hijack mouse wheel scroll
+      dragging: !L.Browser.touch, // on touch devices, let finger scroll the page
       zoomControl: false, // we add it bottom-right manually
       attributionControl: true,
     });
