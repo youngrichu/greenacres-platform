@@ -1,45 +1,46 @@
 {
-    "name": "@greenacres/ui",
-    "version": "0.1.0",
-    "private": true,
-    "main": "./src/index.ts",
-    "types": "./src/index.ts",
-    "exports": {
-        ".": "./src/index.ts",
-        "./globals.css": "./src/globals.css"
-    },
-    "scripts": {
-        "typecheck": "tsc --noEmit",
-        "lint": "eslint .",
-        "test": "vitest run"
-    },
-    "dependencies": {
-        "@hookform/resolvers": "^3.9.1",
-        "@radix-ui/react-avatar": "^1.1.11",
-        "@radix-ui/react-dialog": "^1.1.4",
-        "@radix-ui/react-dropdown-menu": "^2.1.4",
-        "@radix-ui/react-label": "^2.1.1",
-        "@radix-ui/react-select": "^2.1.4",
-        "@radix-ui/react-separator": "^1.1.8",
-        "@radix-ui/react-slot": "^1.2.4",
-        "@radix-ui/react-tabs": "^1.1.2",
-        "@radix-ui/react-toast": "^1.2.4",
-        "class-variance-authority": "^0.7.1",
-        "clsx": "^2.1.1",
-        "lucide-react": "^0.562.0",
-        "react-hook-form": "^7.54.2",
-        "tailwind-merge": "^3.4.0",
-        "zod": "^3.24.1"
-    },
-    "peerDependencies": {
-        "react": "^18 || ^19",
-        "react-dom": "^18 || ^19"
-    },
-    "devDependencies": {
-        "@greenacres/config": "workspace:*",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
-        "tailwindcss": "^4",
-        "typescript": "^5"
-    }
+  "name": "@greenacres/ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./globals.css": "./src/globals.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "@radix-ui/react-dropdown-menu": "^2.1.4",
+    "@radix-ui/react-label": "^2.1.1",
+    "@radix-ui/react-select": "^2.1.4",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.562.0",
+    "react-hook-form": "^7.54.2",
+    "react-joyride": "^2.9.3",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^3.24.1"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
+  },
+  "devDependencies": {
+    "@greenacres/config": "workspace:*",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
 }

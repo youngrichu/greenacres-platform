@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth, useIsAdmin } from "@greenacres/auth";
+import { AdminTour, AdminRestartTourButton } from "@/components/admin-tour";
 import {
   LayoutDashboard,
   DollarSign,
@@ -158,7 +159,7 @@ export default function DashboardLayout({
               Navigation
             </span>
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-1" data-tour="admin-sidebar-nav">
             {adminNavItems.map((item, index) => {
               const isActive =
                 pathname === item.href ||
@@ -174,6 +175,7 @@ export default function DashboardLayout({
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={`sidebar-link group ${isActive ? "active" : ""}`}
+                    data-tour={`admin-nav-${item.label.toLowerCase()}`}
                   >
                     <div
                       className={`
@@ -212,6 +214,11 @@ export default function DashboardLayout({
 
         {/* Decorative divider */}
         <div className="mx-6 divider-gold" />
+
+        {/* Restart Tour */}
+        <div className="px-4 py-2">
+          <AdminRestartTourButton />
+        </div>
 
         {/* User section */}
         <div className="p-4">
@@ -273,6 +280,9 @@ export default function DashboardLayout({
         <main className="flex-1 overflow-auto w-full">
           <div className="min-h-full w-full">{children}</div>
         </main>
+
+        {/* Guided Tour */}
+        <AdminTour />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useAuth, useIsApproved } from "@greenacres/auth";
 import { CartProvider, useCart } from "@/contexts/cart-context";
 import { CartSheet } from "@/components/cart-sheet";
+import { PortalTour, PortalRestartTourButton } from "@/components/portal-tour";
 import {
   LayoutDashboard,
   Package,
@@ -36,6 +37,7 @@ function CartSidebarButton() {
   return (
     <button
       onClick={() => setIsOpen(true)}
+      data-tour="portal-inquiry-list"
       className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-cream/80 hover:text-gold hover:bg-gold/5 transition-all group mt-2 border border-dashed border-gold/20 hover:border-gold/40"
     >
       <div className="flex items-center gap-2">
@@ -222,7 +224,7 @@ export default function PortalLayout({
 
           {/* Navigation */}
           <nav className="flex-1 p-4 overflow-y-auto">
-            <ul className="space-y-1">
+            <ul className="space-y-1" data-tour="portal-sidebar-nav">
               {portalNavItems.map((item) => {
                 const isActive =
                   pathname === item.href ||
@@ -233,6 +235,9 @@ export default function PortalLayout({
                       href={item.href}
                       onClick={() => setSidebarOpen(false)}
                       className={`sidebar-link ${isActive ? "active" : ""}`}
+                      {...(item.href === "/portal/profile"
+                        ? { "data-tour": "portal-profile-link" }
+                        : {})}
                     >
                       <item.icon className="w-5 h-5" />
                       {item.label}
@@ -247,6 +252,10 @@ export default function PortalLayout({
                 Actions
               </p>
               <CartSidebarButton />
+            </div>
+
+            <div className="mt-4 px-1">
+              <PortalRestartTourButton />
             </div>
           </nav>
 
@@ -300,6 +309,9 @@ export default function PortalLayout({
 
         {/* Cart Sheet */}
         <CartSheet />
+
+        {/* Guided Tour */}
+        <PortalTour />
       </div>
     </CartProvider>
   );
