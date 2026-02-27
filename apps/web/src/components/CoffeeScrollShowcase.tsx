@@ -37,9 +37,8 @@ export default function CoffeeScrollShowcase() {
   const bagContainerRef = useRef<HTMLDivElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
-  const bgLeftRef = useRef<HTMLDivElement>(null);
-  const bgRightRef = useRef<HTMLDivElement>(null);
-  const flavorBgRef = useRef<HTMLDivElement>(null);
+  const bgContainerRef = useRef<HTMLDivElement>(null);
+
   const counterRef = useRef<HTMLSpanElement>(null);
   const innerContentRef = useRef<HTMLDivElement>(null);
 
@@ -95,43 +94,179 @@ export default function CoffeeScrollShowcase() {
       setActiveIndex(index);
       setCurrentIndex(index);
 
-      // ── Aurora mesh gradient transition ──
-      if (bgLeftRef.current) {
-        const [c1, c2, c3] = coffee.gradientColors;
-        const mesh = buildMeshGradient(c1, c2, c3);
-        gsap.to(bgLeftRef.current, {
-          backgroundImage: mesh,
-          duration: 1,
-          ease: "power2.inOut",
-        });
-      }
-      if (bgRightRef.current) {
-        gsap.to(bgRightRef.current, {
-          backgroundColor: coffee.bgRight,
-          duration: 0.8,
-          ease: "power2.inOut",
-        });
-      }
+      // ── Background Color Blocks Sliding Transition (Bennett style) ──
+      if (bgContainerRef.current) {
+        const layers = bgContainerRef.current.querySelectorAll(".bg-layer");
+        const isMobile = window.innerWidth < 768;
 
-      // ── Flavor background image transition ──
-      if (flavorBgRef.current) {
-        const imgs = flavorBgRef.current.querySelectorAll(".flavor-bg-img");
-        imgs.forEach((img, i) => {
-          const el = img as HTMLElement;
+        // Kill existing layer tweens to prevent clashes
+        layers.forEach((layer) => {
+          const rightPanel = layer.querySelector(".bg-right-panel");
+          const blocks = layer.querySelectorAll(".bg-block");
+          if (rightPanel) gsap.killTweensOf(rightPanel);
+          if (blocks) gsap.killTweensOf(blocks);
+        });
+
+        const animSets = [
+          // Index 0: combinations of up/down/left/right
+          {
+            top: { axis: "y", dir: -1 },
+            bl: { axis: "x", dir: -1 },
+            br: { axis: "y", dir: 1 },
+            right: { axis: "x", dir: 1 },
+          },
+          // Index 1
+          {
+            top: { axis: "y", dir: 1 },
+            bl: { axis: "y", dir: 1 },
+            br: { axis: "x", dir: -1 },
+            right: { axis: "y", dir: -1 },
+          },
+          // Index 2
+          {
+            top: { axis: "x", dir: -1 },
+            bl: { axis: "y", dir: -1 },
+            br: { axis: "x", dir: 1 },
+            right: { axis: "x", dir: 1 },
+          },
+          // Index 3
+          {
+            top: { axis: "y", dir: -1 },
+            bl: { axis: "x", dir: 1 },
+            br: { axis: "y", dir: -1 },
+            right: { axis: "y", dir: 1 },
+          },
+        ];
+
+        const getAnim = (idx: number) => animSets[idx % animSets.length];
+
+        layers.forEach((layer, i) => {
+          const el = layer as HTMLElement;
+          const rightPanel = el.querySelector(".bg-right-panel");
+          const topBlock = el.querySelector(".top-block");
+          const blBlock = el.querySelector(".bottom-left-block");
+          const brBlock = el.querySelector(".bottom-right-block");
+
+          // Ensure starting clean state on other elements
+          if (i !== index && i !== prevIndex) {
+            gsap.set(el, { visibility: "hidden", zIndex: 1 });
+          }
+
           if (i === index) {
-            gsap.to(el, {
-              opacity: 0.05,
-              scale: 1.05,
-              duration: 1,
-              ease: "power2.inOut",
-            });
-          } else {
-            gsap.to(el, {
-              opacity: 0,
-              scale: 1,
-              duration: 0.6,
-              ease: "power2.in",
-            });
+            // Incoming layer
+            gsap.set(el, { visibility: "visible", zIndex: 2 });
+            const incomeAnim = getAnim(index);
+            const dur = isMobile ? 0.7 : 0.9;
+
+            if (topBlock) {
+              gsap.fromTo(
+                topBlock,
+                {
+                  xPercent: 0,
+                  yPercent: 0,
+                  [`${incomeAnim.top.axis}Percent`]:
+                    incomeAnim.top.dir * 100 * direction,
+                },
+                {
+                  [`${incomeAnim.top.axis}Percent`]: 0,
+                  duration: dur,
+                  ease: "power3.out",
+                },
+              );
+            }
+            if (blBlock) {
+              gsap.fromTo(
+                blBlock,
+                {
+                  xPercent: 0,
+                  yPercent: 0,
+                  [`${incomeAnim.bl.axis}Percent`]:
+                    incomeAnim.bl.dir * 100 * direction,
+                },
+                {
+                  [`${incomeAnim.bl.axis}Percent`]: 0,
+                  duration: dur + 0.1,
+                  ease: "power3.out",
+                },
+              );
+            }
+            if (brBlock) {
+              gsap.fromTo(
+                brBlock,
+                {
+                  xPercent: 0,
+                  yPercent: 0,
+                  [`${incomeAnim.br.axis}Percent`]:
+                    incomeAnim.br.dir * 100 * direction,
+                },
+                {
+                  [`${incomeAnim.br.axis}Percent`]: 0,
+                  duration: dur + 0.05,
+                  ease: "power3.out",
+                },
+              );
+            }
+            if (rightPanel) {
+              gsap.fromTo(
+                rightPanel,
+                {
+                  xPercent: 0,
+                  yPercent: 0,
+                  [`${incomeAnim.right.axis}Percent`]:
+                    incomeAnim.right.dir * 100 * direction,
+                },
+                {
+                  [`${incomeAnim.right.axis}Percent`]: 0,
+                  duration: dur,
+                  ease: "power3.out",
+                },
+              );
+            }
+          } else if (i === prevIndex && el.style.visibility !== "hidden") {
+            // Outgoing layer
+            const outgoAnim = getAnim(prevIndex < 0 ? 0 : prevIndex);
+            const dur = isMobile ? 0.6 : 0.8;
+
+            if (topBlock) {
+              gsap.to(topBlock, {
+                [`${outgoAnim.top.axis}Percent`]:
+                  outgoAnim.top.dir * -100 * direction,
+                duration: dur,
+                ease: "power2.inOut",
+              });
+            }
+            if (blBlock) {
+              gsap.to(blBlock, {
+                [`${outgoAnim.bl.axis}Percent`]:
+                  outgoAnim.bl.dir * -100 * direction,
+                duration: dur + 0.05,
+                ease: "power2.inOut",
+              });
+            }
+            if (brBlock) {
+              gsap.to(brBlock, {
+                [`${outgoAnim.br.axis}Percent`]:
+                  outgoAnim.br.dir * -100 * direction,
+                duration: dur - 0.05,
+                ease: "power2.inOut",
+              });
+            }
+            if (rightPanel) {
+              gsap.to(rightPanel, {
+                [`${outgoAnim.right.axis}Percent`]:
+                  outgoAnim.right.dir * -100 * direction,
+                duration: dur,
+                ease: "power2.inOut",
+                onComplete: () => {
+                  gsap.set(el, { visibility: "hidden", zIndex: 1 });
+                  // Reset transforms so they are ready for next time
+                  gsap.set([topBlock, blBlock, brBlock, rightPanel], {
+                    xPercent: 0,
+                    yPercent: 0,
+                  });
+                },
+              });
+            }
           }
         });
       }
@@ -491,49 +626,56 @@ export default function CoffeeScrollShowcase() {
       >
         {/* ── All interior content wrapped for parallax exit ── */}
         <div ref={innerContentRef} className="absolute inset-0">
-          {/* ═══ SPLIT BACKGROUND ═══ */}
-          <div className="absolute inset-0 flex flex-col md:flex-row">
-            <div
-              ref={bgLeftRef}
-              className="w-full h-[50%] md:w-1/2 md:h-full"
-              style={{
-                backgroundImage: buildMeshGradient(
-                  ...coffees[0].gradientColors,
-                ),
-                backgroundSize: "100% 100%",
-              }}
-            />
-            <div
-              ref={bgRightRef}
-              className="w-full h-[50%] md:w-1/2 md:h-full"
-              style={{ backgroundColor: coffees[0].bgRight }}
-            />
-          </div>
-
-          {/* ═══ FLAVOR BACKGROUND ON RIGHT PANEL ═══ */}
+          {/* ═══ SPLIT BACKGROUND (Bennett Style Blocks) ═══ */}
           <div
-            ref={flavorBgRef}
-            className="absolute bottom-0 md:top-0 right-0 w-full h-[50%] md:w-1/2 md:h-full overflow-hidden pointer-events-none z-[1]"
+            ref={bgContainerRef}
+            className="absolute inset-0 overflow-hidden pointer-events-none"
           >
-            {coffees.map((coffee, i) => {
-              const flavorImageUrl = getCldImageUrl({
-                src: coffee.flavorImage,
-              });
-              return (
+            {coffees.map((coffee, i) => (
+              <div
+                key={coffee.name}
+                className="bg-layer absolute inset-0 flex flex-col md:flex-row"
+                style={{
+                  visibility: i === 0 ? "visible" : "hidden",
+                  zIndex: i === 0 ? 2 : 1,
+                }}
+              >
+                {/* Left Panel: 1 Top Block, 2 Bottom Square-ish Blocks + Flavor Overlay */}
+                <div className="w-full h-[50%] md:w-1/2 md:h-full flex flex-col relative overflow-hidden">
+                  <div
+                    className="bg-block top-block absolute top-0 left-0 w-full h-[65%]"
+                    style={{ backgroundColor: coffee.gradientColors[0] }}
+                  />
+                  <div className="absolute bottom-0 left-0 w-full h-[35%] flex flex-row">
+                    <div
+                      className="bg-block bottom-left-block flex-1 h-full"
+                      style={{ backgroundColor: coffee.gradientColors[1] }}
+                    />
+                    <div
+                      className="bg-block bottom-right-block flex-1 h-full"
+                      style={{ backgroundColor: coffee.gradientColors[2] }}
+                    />
+                  </div>
+                  {/* Flavor image overlaid on the color blocks */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `url(${getCldImageUrl({ src: coffee.flavorImage })})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      opacity: 0.08,
+                      mixBlendMode: "multiply",
+                    }}
+                  />
+                </div>
+
+                {/* Right Panel: Solid Color */}
                 <div
-                  key={coffee.name}
-                  className="flavor-bg-img absolute w-full h-[120%] -top-[10%] left-0"
-                  style={{
-                    opacity: 0,
-                    backgroundImage: `url(${flavorImageUrl})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    mixBlendMode: "multiply",
-                    transform: "scale(1)",
-                  }}
+                  className="bg-right-panel w-full h-[50%] md:w-1/2 md:h-full"
+                  style={{ backgroundColor: coffee.bgRight }}
                 />
-              );
-            })}
+              </div>
+            ))}
           </div>
 
           {/* ═══ GRAIN TEXTURE OVERLAY ═══ */}
