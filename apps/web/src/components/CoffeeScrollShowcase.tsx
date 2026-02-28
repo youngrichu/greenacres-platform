@@ -722,13 +722,13 @@ export default function CoffeeScrollShowcase() {
           {/* ═══ MAIN CONTENT GRID ═══ */}
           <div className="relative z-10 h-full flex flex-col md:flex-row">
             {/* TOP/LEFT: Jute Bag Image */}
-            <div className="w-full h-[50%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4 pt-[72px] md:pt-0">
+            <div className="w-full h-[50%] md:w-1/2 md:h-full flex items-center justify-center relative px-8 md:px-4 pt-[110px] md:pt-0 pb-4 md:pb-0">
               {/* Shadow layer */}
               <div className="absolute bottom-[4%] md:bottom-[12%] left-1/2 -translate-x-1/2 w-[50%] md:w-[45%] h-4 md:h-10 bg-black/25 rounded-[50%] blur-xl md:blur-2xl" />
 
               <div
                 ref={bagContainerRef}
-                className="relative h-[95%] md:h-[80%] aspect-square"
+                className="relative h-[85%] md:h-[80%] aspect-square"
               >
                 {coffees.map((coffee, i) => (
                   <div

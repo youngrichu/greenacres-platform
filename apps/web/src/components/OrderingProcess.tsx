@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -243,13 +244,13 @@ export default function OrderingProcess() {
                   transparency, and mutual growth. Our flexible export terms are
                   designed to meet the needs of international buyers.
                 </p>
-                <a
-                  href="#contact"
+                <Link
+                  href="/register"
                   className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-gold text-forest font-bold rounded-full hover:bg-gold-light transition-all hover:scale-105 shadow-xl group"
                 >
                   Start a Partnership
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </a>
+                </Link>
               </div>
 
               {/* Column 2: Logistics & Terms */}
